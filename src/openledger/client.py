@@ -5,18 +5,12 @@ from .environment import OpenLedgerClientEnvironment
 import httpx
 from .core.client_wrapper import SyncClientWrapper
 from .transactions.client import TransactionsClient
-from .accounts.client import AccountsClient
 from .companies.client import CompaniesClient
-from .reports.client import ReportsClient
-from .chat.client import ChatClient
-from .invoices.client import InvoicesClient
+from .categories.client import CategoriesClient
 from .core.client_wrapper import AsyncClientWrapper
 from .transactions.client import AsyncTransactionsClient
-from .accounts.client import AsyncAccountsClient
 from .companies.client import AsyncCompaniesClient
-from .reports.client import AsyncReportsClient
-from .chat.client import AsyncChatClient
-from .invoices.client import AsyncInvoicesClient
+from .categories.client import AsyncCategoriesClient
 
 
 class OpenLedgerClient:
@@ -78,11 +72,8 @@ class OpenLedgerClient:
             timeout=_defaulted_timeout,
         )
         self.transactions = TransactionsClient(client_wrapper=self._client_wrapper)
-        self.accounts = AccountsClient(client_wrapper=self._client_wrapper)
         self.companies = CompaniesClient(client_wrapper=self._client_wrapper)
-        self.reports = ReportsClient(client_wrapper=self._client_wrapper)
-        self.chat = ChatClient(client_wrapper=self._client_wrapper)
-        self.invoices = InvoicesClient(client_wrapper=self._client_wrapper)
+        self.categories = CategoriesClient(client_wrapper=self._client_wrapper)
 
 
 class AsyncOpenLedgerClient:
@@ -144,11 +135,8 @@ class AsyncOpenLedgerClient:
             timeout=_defaulted_timeout,
         )
         self.transactions = AsyncTransactionsClient(client_wrapper=self._client_wrapper)
-        self.accounts = AsyncAccountsClient(client_wrapper=self._client_wrapper)
         self.companies = AsyncCompaniesClient(client_wrapper=self._client_wrapper)
-        self.reports = AsyncReportsClient(client_wrapper=self._client_wrapper)
-        self.chat = AsyncChatClient(client_wrapper=self._client_wrapper)
-        self.invoices = AsyncInvoicesClient(client_wrapper=self._client_wrapper)
+        self.categories = AsyncCategoriesClient(client_wrapper=self._client_wrapper)
 
 
 def _get_base_url(*, base_url: typing.Optional[str] = None, environment: OpenLedgerClientEnvironment) -> str:

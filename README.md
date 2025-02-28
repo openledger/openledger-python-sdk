@@ -26,7 +26,7 @@ client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
 client.transactions.create_a_new_transaction(
-    id="id",
+    id_="id",
 )
 ```
 
@@ -46,7 +46,7 @@ client = AsyncOpenLedgerClient(
 
 async def main() -> None:
     await client.transactions.create_a_new_transaction(
-        id="id",
+        id_="id",
     )
 
 
