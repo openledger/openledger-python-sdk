@@ -25,8 +25,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.create_a_new_transaction(
-    id_="id",
+client.authentication.generate_token(
+    client_id="client_id",
+    client_secret="client_secret",
 )
 ```
 
@@ -45,8 +46,9 @@ client = AsyncOpenLedgerClient(
 
 
 async def main() -> None:
-    await client.transactions.create_a_new_transaction(
-        id_="id",
+    await client.authentication.generate_token(
+        client_id="client_id",
+        client_secret="client_secret",
     )
 
 
@@ -62,7 +64,7 @@ will be thrown.
 from openledger.core.api_error import ApiError
 
 try:
-    client.transactions.create_a_new_transaction(...)
+    client.authentication.generate_token(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -85,7 +87,7 @@ A request is deemed retriable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.transactions.create_a_new_transaction(..., request_options={
+client.authentication.generate_token(..., request_options={
     "max_retries": 1
 })
 ```
@@ -105,7 +107,7 @@ client = OpenLedgerClient(
 
 
 # Override timeout for a specific method
-client.transactions.create_a_new_transaction(..., request_options={
+client.authentication.generate_token(..., request_options={
     "timeout_in_seconds": 1
 })
 ```

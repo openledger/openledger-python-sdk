@@ -2,20 +2,13 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
-import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
+import pydantic
 
 
 class Error(UniversalBaseModel):
-    code: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    Error code
-    """
-
-    message: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Error message
-    """
+    error: typing.Optional[str] = None
+    message: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

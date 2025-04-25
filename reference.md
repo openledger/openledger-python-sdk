@@ -1,8 +1,102 @@
 # Reference
+## Authentication
+<details><summary><code>client.authentication.<a href="src/openledger/authentication/client.py">generate_token</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generate a JWT token for API authentication
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.authentication.generate_token(
+    client_id="client_id",
+    client_secret="client_secret",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**client_id:** `str` — Client ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**client_secret:** `str` — Client secret
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Transactions
 <details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">get_transactions_by_company</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get all transactions for a company with optional filters
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -19,7 +113,7 @@ client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
 client.transactions.get_transactions_by_company(
-    id="id",
+    entity_id="entityId",
 )
 
 ```
@@ -36,7 +130,7 @@ client.transactions.get_transactions_by_company(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -56,9 +150,23 @@ client.transactions.get_transactions_by_company(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">create_a_new_transaction</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">create_transaction</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new transaction
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -74,8 +182,12 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.create_a_new_transaction(
-    id_="id",
+client.transactions.create_transaction(
+    entity_id="entityId",
+    amount=1.1,
+    description="description",
+    debit_account_id="debitAccountId",
+    credit_account_id="creditAccountId",
 )
 
 ```
@@ -92,7 +204,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**id_:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -100,7 +212,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**id:** `typing.Optional[str]` — Unique identifier for the transaction
+**amount:** `float` 
     
 </dd>
 </dl>
@@ -108,7 +220,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**date:** `typing.Optional[dt.datetime]` — Date of the transaction
+**description:** `str` 
     
 </dd>
 </dl>
@@ -116,7 +228,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**amount:** `typing.Optional[float]` — Amount of the transaction
+**debit_account_id:** `str` 
     
 </dd>
 </dl>
@@ -124,7 +236,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**currency:** `typing.Optional[str]` — Currency of the transaction
+**credit_account_id:** `str` 
     
 </dd>
 </dl>
@@ -132,7 +244,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**description:** `typing.Optional[str]` — Description of the transaction
+**date:** `typing.Optional[dt.datetime]` 
     
 </dd>
 </dl>
@@ -140,7 +252,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**status:** `typing.Optional[TransactionStatus]` — Status of the transaction
+**currency:** `typing.Optional[str]` 
     
 </dd>
 </dl>
@@ -148,7 +260,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**created_by:** `typing.Optional[int]` — ID of the user who created the transaction
+**status:** `typing.Optional[TransactionRequestStatus]` 
     
 </dd>
 </dl>
@@ -156,119 +268,7 @@ client.transactions.create_a_new_transaction(
 <dl>
 <dd>
 
-**updated_by:** `typing.Optional[int]` — ID of the user who last updated the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**created_at:** `typing.Optional[dt.datetime]` — Date when the transaction was created
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**updated_at:** `typing.Optional[dt.datetime]` — Date when the transaction was last updated
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**bank_transaction_id:** `typing.Optional[str]` — ID of the bank transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**transaction_type:** `typing.Optional[TransactionTransactionType]` — Type of transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**ledger_type:** `typing.Optional[TransactionLedgerType]` — Ledger type of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**bank_account_id:** `typing.Optional[str]` — ID of the bank account
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**business_id:** `typing.Optional[str]` — ID of the business
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**direction:** `typing.Optional[TransactionDirection]` — Direction of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**balance:** `typing.Optional[float]` — Balance after the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**counterparty_name:** `typing.Optional[str]` — Name of the counterparty
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**categorization_status:** `typing.Optional[TransactionCategorizationStatus]` — Status of categorization
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**category_id:** `typing.Optional[int]` — ID of the category
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**company_id:** `typing.Optional[str]` — ID of the company
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Additional metadata for the transaction
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` 
     
 </dd>
 </dl>
@@ -288,9 +288,23 @@ client.transactions.create_a_new_transaction(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">edit_a_transaction</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">approve_transaction</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Approve a transaction
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -306,8 +320,8 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.edit_a_transaction(
-    id_="id",
+client.transactions.approve_transaction(
+    entity_id="entityId",
     transaction_id="transactionId",
 )
 
@@ -325,7 +339,7 @@ client.transactions.edit_a_transaction(
 <dl>
 <dd>
 
-**id_:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -333,183 +347,7 @@ client.transactions.edit_a_transaction(
 <dl>
 <dd>
 
-**transaction_id:** `str` — Transaction ID
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**id:** `typing.Optional[str]` — Unique identifier for the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**date:** `typing.Optional[dt.datetime]` — Date of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**amount:** `typing.Optional[float]` — Amount of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**currency:** `typing.Optional[str]` — Currency of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**description:** `typing.Optional[str]` — Description of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**status:** `typing.Optional[TransactionStatus]` — Status of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**created_by:** `typing.Optional[int]` — ID of the user who created the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**updated_by:** `typing.Optional[int]` — ID of the user who last updated the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**created_at:** `typing.Optional[dt.datetime]` — Date when the transaction was created
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**updated_at:** `typing.Optional[dt.datetime]` — Date when the transaction was last updated
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**bank_transaction_id:** `typing.Optional[str]` — ID of the bank transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**transaction_type:** `typing.Optional[TransactionTransactionType]` — Type of transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**ledger_type:** `typing.Optional[TransactionLedgerType]` — Ledger type of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**bank_account_id:** `typing.Optional[str]` — ID of the bank account
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**business_id:** `typing.Optional[str]` — ID of the business
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**direction:** `typing.Optional[TransactionDirection]` — Direction of the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**balance:** `typing.Optional[float]` — Balance after the transaction
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**counterparty_name:** `typing.Optional[str]` — Name of the counterparty
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**categorization_status:** `typing.Optional[TransactionCategorizationStatus]` — Status of categorization
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**category_id:** `typing.Optional[int]` — ID of the category
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**company_id:** `typing.Optional[str]` — ID of the company
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Additional metadata for the transaction
+**transaction_id:** `str` 
     
 </dd>
 </dl>
@@ -529,9 +367,23 @@ client.transactions.edit_a_transaction(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">export_transaction</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">delete_transaction</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a transaction
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -547,8 +399,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.export_transaction(
-    id="id",
+client.transactions.delete_transaction(
+    entity_id="entityId",
+    transaction_id="transactionId",
 )
 
 ```
@@ -565,7 +418,7 @@ client.transactions.export_transaction(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -573,23 +426,7 @@ client.transactions.export_transaction(
 <dl>
 <dd>
 
-**format:** `typing.Optional[ExportTransactionRequestFormat]` — Export format
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**start_date:** `typing.Optional[str]` — Start date for filtering transactions
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**end_date:** `typing.Optional[str]` — End date for filtering transactions
+**transaction_id:** `str` — Transaction ID
     
 </dd>
 </dl>
@@ -613,6 +450,20 @@ client.transactions.export_transaction(
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get transactions for a specified month
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -628,8 +479,9 @@ client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
 client.transactions.get_transactions_by_month(
-    id="id",
+    entity_id="entityId",
     month="month",
+    year="year",
 )
 
 ```
@@ -646,7 +498,7 @@ client.transactions.get_transactions_by_month(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -654,7 +506,15 @@ client.transactions.get_transactions_by_month(
 <dl>
 <dd>
 
-**month:** `str` — Month in YYYY-MM format
+**month:** `str` — Month (1-12)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**year:** `str` — Year (YYYY)
     
 </dd>
 </dl>
@@ -674,9 +534,23 @@ client.transactions.get_transactions_by_month(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">prompt_transaction</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">categorize_transaction</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Assign a category to a transaction
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -692,8 +566,10 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.prompt_transaction(
-    id="id",
+client.transactions.categorize_transaction(
+    entity_id="entityId",
+    transaction_id="transactionId",
+    category_id="categoryId",
 )
 
 ```
@@ -710,7 +586,23 @@ client.transactions.prompt_transaction(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**transaction_id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**category_id:** `str` 
     
 </dd>
 </dl>
@@ -730,9 +622,23 @@ client.transactions.prompt_transaction(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">classify_transaction</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">search_transactions</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Search for transactions with various filters
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -748,8 +654,8 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.classify_transaction(
-    id="id",
+client.transactions.search_transactions(
+    entity_id="entityId",
 )
 
 ```
@@ -766,7 +672,39 @@ client.transactions.classify_transaction(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**query:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**filters:** `typing.Optional[TransactionSearchRequestFilters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page:** `typing.Optional[int]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` 
     
 </dd>
 </dl>
@@ -786,9 +724,23 @@ client.transactions.classify_transaction(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">generate_general_ledger</a>(...)</code></summary>
+<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">chat_with_transactions</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Natural language interaction with transactions
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -804,8 +756,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.generate_general_ledger(
-    id="id",
+client.transactions.chat_with_transactions(
+    entity_id="entityId",
+    prompt="prompt",
 )
 
 ```
@@ -822,7 +775,15 @@ client.transactions.generate_general_ledger(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**prompt:** `str` — Natural language prompt
     
 </dd>
 </dl>
@@ -842,11 +803,12 @@ client.transactions.generate_general_ledger(
 </dl>
 </details>
 
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">bulk_create_transactions</a>(...)</code></summary>
+## Reports
+<details><summary><code>client.reports.<a href="src/openledger/reports/client.py">get_financial_reports</a>(...)</code></summary>
 <dl>
 <dd>
 
-#### 🔌 Usage
+#### 📝 Description
 
 <dl>
 <dd>
@@ -854,62 +816,11 @@ client.transactions.generate_general_ledger(
 <dl>
 <dd>
 
-```python
-from openledger import OpenLedgerClient, Transaction
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.bulk_create_transactions(
-    id="id",
-    request=[Transaction()],
-)
-
-```
+Get financial statements including balance sheet, income statement, and cash flow
 </dd>
 </dl>
 </dd>
 </dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**id:** `str` — Company ID
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request:** `typing.Sequence[Transaction]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.transactions.<a href="src/openledger/transactions/client.py">suggest_transaction_categories</a>(...)</code></summary>
-<dl>
-<dd>
 
 #### 🔌 Usage
 
@@ -925,8 +836,8 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.transactions.suggest_transaction_categories(
-    id="id",
+client.reports.get_financial_reports(
+    entity_id="entityId",
 )
 
 ```
@@ -943,7 +854,7 @@ client.transactions.suggest_transaction_categories(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -951,7 +862,23 @@ client.transactions.suggest_transaction_categories(
 <dl>
 <dd>
 
-**transactions:** `typing.Optional[typing.Sequence[Transaction]]` 
+**month:** `typing.Optional[str]` — Month (1-12)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**year:** `typing.Optional[str]` — Year (YYYY)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**type:** `typing.Optional[GetReportsFinancialRequestType]` — Report type
     
 </dd>
 </dl>
@@ -971,10 +898,23 @@ client.transactions.suggest_transaction_categories(
 </dl>
 </details>
 
-## Companies
-<details><summary><code>client.companies.<a href="src/openledger/companies/client.py">create_company</a>(...)</code></summary>
+<details><summary><code>client.reports.<a href="src/openledger/reports/client.py">generate_general_ledger</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generate a general ledger report for an entity
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -990,7 +930,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.companies.create_company()
+client.reports.generate_general_ledger(
+    entity_id="entityId",
+)
 
 ```
 </dd>
@@ -1002,6 +944,677 @@ client.companies.create_company()
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**month:** `typing.Optional[str]` — Month (1-12)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**year:** `typing.Optional[str]` — Year (YYYY)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Banks
+<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">create_plaid_link_token</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generate a link token for Plaid integration
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.banks.create_plaid_link_token(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">add_bank_account</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Add a bank account using public token from Plaid
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.banks.add_bank_account(
+    entity_id="entityId",
+    public_token="public_token",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**public_token:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Integrations
+<details><summary><code>client.integrations.<a href="src/openledger/integrations/client.py">get_integration_status</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get status of all integrations for an entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.integrations.get_integration_status(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.integrations.<a href="src/openledger/integrations/client.py">connect_integration</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Connect a third-party integration
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.integrations.connect_integration(
+    entity_id="entityId",
+    provider="provider",
+    authorization={"key": "value"},
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**provider:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**authorization:** `typing.Dict[str, typing.Optional[typing.Any]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.integrations.<a href="src/openledger/integrations/client.py">disconnect_integration</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Disconnect a third-party integration
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.integrations.disconnect_integration(
+    entity_id="entityId",
+    integration_id="integrationId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**integration_id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Entities
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">get_entity_details</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get details for a specific entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.entities.get_entity_details(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">create_entity</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.entities.create_entity(
+    legal_name="legalName",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**legal_name:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**external_id:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tin:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**us_state:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**entity_type:** `typing.Optional[EntityCreateRequestEntityType]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**phone_number:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**status:** `typing.Optional[EntityCreateRequestStatus]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">update_entity</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an existing entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.entities.update_entity(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — entity ID
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -1030,7 +1643,7 @@ client.companies.create_company()
 <dl>
 <dd>
 
-**entity_type:** `typing.Optional[str]` 
+**entity_type:** `typing.Optional[EntityUpdateRequestEntityType]` 
     
 </dd>
 </dl>
@@ -1046,7 +1659,7 @@ client.companies.create_company()
 <dl>
 <dd>
 
-**developer_id:** `typing.Optional[str]` 
+**status:** `typing.Optional[EntityUpdateRequestStatus]` 
     
 </dd>
 </dl>
@@ -1066,9 +1679,23 @@ client.companies.create_company()
 </dl>
 </details>
 
-<details><summary><code>client.companies.<a href="src/openledger/companies/client.py">get_company</a>(...)</code></summary>
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">delete_entity</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete an entity
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1084,8 +1711,8 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.companies.get_company(
-    id="id",
+client.entities.delete_entity(
+    entity_id="entityId",
 )
 
 ```
@@ -1102,7 +1729,7 @@ client.companies.get_company(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` — entity ID
     
 </dd>
 </dl>
@@ -1122,9 +1749,24 @@ client.companies.get_company(
 </dl>
 </details>
 
-<details><summary><code>client.companies.<a href="src/openledger/companies/client.py">update_company</a>(...)</code></summary>
+## Ai
+<details><summary><code>client.ai.<a href="src/openledger/ai/client.py">semantic_search</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Perform semantic search across vectorized data
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1140,9 +1782,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.companies.update_company(
-    id="id",
-    request={"key": "value"},
+client.ai.semantic_search(
+    entity_id="entityId",
+    query="query",
 )
 
 ```
@@ -1159,7 +1801,7 @@ client.companies.update_company(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**entity_id:** `str` 
     
 </dd>
 </dl>
@@ -1167,7 +1809,47 @@ client.companies.update_company(
 <dl>
 <dd>
 
-**request:** `typing.Dict[str, typing.Optional[typing.Any]]` 
+**query:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**source_types:** `typing.Optional[typing.Sequence[str]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document_types:** `typing.Optional[typing.Sequence[str]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**time_start:** `typing.Optional[dt.datetime]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**time_end:** `typing.Optional[dt.datetime]` 
     
 </dd>
 </dl>
@@ -1187,9 +1869,24 @@ client.companies.update_company(
 </dl>
 </details>
 
-<details><summary><code>client.companies.<a href="src/openledger/companies/client.py">delete_company</a>(...)</code></summary>
+## Sandbox
+<details><summary><code>client.sandbox.<a href="src/openledger/sandbox/client.py">create_sandbox_environment</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a complete sandbox environment for development and testing, including a developer account, workspace, instance, entity, ledger structure, and Plaid sandbox bank connections.
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1205,8 +1902,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.companies.delete_company(
-    id="id",
+client.sandbox.create_sandbox_environment(
+    name="name",
+    developer_id="developer_id",
 )
 
 ```
@@ -1223,7 +1921,7 @@ client.companies.delete_company(
 <dl>
 <dd>
 
-**id:** `str` — Company ID
+**name:** `str` 
     
 </dd>
 </dl>
@@ -1231,56 +1929,7 @@ client.companies.delete_company(
 <dl>
 <dd>
 
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Categories
-<details><summary><code>client.categories.<a href="src/openledger/categories/client.py">get_categories_by_company</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.categories.get_categories_by_company(
-    id="id",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**id:** `str` — Company ID
+**developer_id:** `str` 
     
 </dd>
 </dl>
@@ -1288,55 +1937,7 @@ client.categories.get_categories_by_company(
 <dl>
 <dd>
 
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.categories.<a href="src/openledger/categories/client.py">create_category</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.categories.create_category(
-    id="id",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**id:** `str` — Company ID
+**industry:** `typing.Optional[str]` 
     
 </dd>
 </dl>
@@ -1344,15 +1945,7 @@ client.categories.create_category(
 <dl>
 <dd>
 
-**name:** `typing.Optional[str]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**description:** `typing.Optional[str]` 
+**preferences:** `typing.Optional[SandboxRequestPreferences]` 
     
 </dd>
 </dl>

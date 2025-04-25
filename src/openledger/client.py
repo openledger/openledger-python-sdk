@@ -4,13 +4,23 @@ import typing
 from .environment import OpenLedgerClientEnvironment
 import httpx
 from .core.client_wrapper import SyncClientWrapper
+from .authentication.client import AuthenticationClient
 from .transactions.client import TransactionsClient
-from .companies.client import CompaniesClient
-from .categories.client import CategoriesClient
+from .reports.client import ReportsClient
+from .banks.client import BanksClient
+from .integrations.client import IntegrationsClient
+from .entities.client import EntitiesClient
+from .ai.client import AiClient
+from .sandbox.client import SandboxClient
 from .core.client_wrapper import AsyncClientWrapper
+from .authentication.client import AsyncAuthenticationClient
 from .transactions.client import AsyncTransactionsClient
-from .companies.client import AsyncCompaniesClient
-from .categories.client import AsyncCategoriesClient
+from .reports.client import AsyncReportsClient
+from .banks.client import AsyncBanksClient
+from .integrations.client import AsyncIntegrationsClient
+from .entities.client import AsyncEntitiesClient
+from .ai.client import AsyncAiClient
+from .sandbox.client import AsyncSandboxClient
 
 
 class OpenLedgerClient:
@@ -31,7 +41,7 @@ class OpenLedgerClient:
 
 
 
-    token : typing.Union[str, typing.Callable[[], str]]
+    token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
 
@@ -55,7 +65,7 @@ class OpenLedgerClient:
         *,
         base_url: typing.Optional[str] = None,
         environment: OpenLedgerClientEnvironment = OpenLedgerClientEnvironment.DEFAULT,
-        token: typing.Union[str, typing.Callable[[], str]],
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
         httpx_client: typing.Optional[httpx.Client] = None,
@@ -71,9 +81,14 @@ class OpenLedgerClient:
             else httpx.Client(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
+        self.authentication = AuthenticationClient(client_wrapper=self._client_wrapper)
         self.transactions = TransactionsClient(client_wrapper=self._client_wrapper)
-        self.companies = CompaniesClient(client_wrapper=self._client_wrapper)
-        self.categories = CategoriesClient(client_wrapper=self._client_wrapper)
+        self.reports = ReportsClient(client_wrapper=self._client_wrapper)
+        self.banks = BanksClient(client_wrapper=self._client_wrapper)
+        self.integrations = IntegrationsClient(client_wrapper=self._client_wrapper)
+        self.entities = EntitiesClient(client_wrapper=self._client_wrapper)
+        self.ai = AiClient(client_wrapper=self._client_wrapper)
+        self.sandbox = SandboxClient(client_wrapper=self._client_wrapper)
 
 
 class AsyncOpenLedgerClient:
@@ -94,7 +109,7 @@ class AsyncOpenLedgerClient:
 
 
 
-    token : typing.Union[str, typing.Callable[[], str]]
+    token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
 
@@ -118,7 +133,7 @@ class AsyncOpenLedgerClient:
         *,
         base_url: typing.Optional[str] = None,
         environment: OpenLedgerClientEnvironment = OpenLedgerClientEnvironment.DEFAULT,
-        token: typing.Union[str, typing.Callable[[], str]],
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
         httpx_client: typing.Optional[httpx.AsyncClient] = None,
@@ -134,9 +149,14 @@ class AsyncOpenLedgerClient:
             else httpx.AsyncClient(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
+        self.authentication = AsyncAuthenticationClient(client_wrapper=self._client_wrapper)
         self.transactions = AsyncTransactionsClient(client_wrapper=self._client_wrapper)
-        self.companies = AsyncCompaniesClient(client_wrapper=self._client_wrapper)
-        self.categories = AsyncCategoriesClient(client_wrapper=self._client_wrapper)
+        self.reports = AsyncReportsClient(client_wrapper=self._client_wrapper)
+        self.banks = AsyncBanksClient(client_wrapper=self._client_wrapper)
+        self.integrations = AsyncIntegrationsClient(client_wrapper=self._client_wrapper)
+        self.entities = AsyncEntitiesClient(client_wrapper=self._client_wrapper)
+        self.ai = AsyncAiClient(client_wrapper=self._client_wrapper)
+        self.sandbox = AsyncSandboxClient(client_wrapper=self._client_wrapper)
 
 
 def _get_base_url(*, base_url: typing.Optional[str] = None, environment: OpenLedgerClientEnvironment) -> str:

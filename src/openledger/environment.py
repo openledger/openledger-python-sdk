@@ -4,4 +4,4 @@ import enum
 
 
 class OpenLedgerClientEnvironment(enum.Enum):
-    DEFAULT = "http://localhost:8080"
+    DEFAULT = "https://api.openledger.com/v1"

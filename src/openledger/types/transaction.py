@@ -2,130 +2,25 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
-import pydantic
+import typing_extensions
+from ..core.serialization import FieldMetadata
 import datetime as dt
 from .transaction_status import TransactionStatus
-from .transaction_transaction_type import TransactionTransactionType
-from .transaction_ledger_type import TransactionLedgerType
-from .transaction_direction import TransactionDirection
-import typing_extensions
-from .transaction_categorization_status import TransactionCategorizationStatus
-from ..core.serialization import FieldMetadata
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
+import pydantic
 
 
 class Transaction(UniversalBaseModel):
-    id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Unique identifier for the transaction
-    """
-
-    date: typing.Optional[dt.datetime] = pydantic.Field(default=None)
-    """
-    Date of the transaction
-    """
-
-    amount: typing.Optional[float] = pydantic.Field(default=None)
-    """
-    Amount of the transaction
-    """
-
-    currency: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Currency of the transaction
-    """
-
-    description: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Description of the transaction
-    """
-
-    status: typing.Optional[TransactionStatus] = pydantic.Field(default=None)
-    """
-    Status of the transaction
-    """
-
-    created_by: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    ID of the user who created the transaction
-    """
-
-    updated_by: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    ID of the user who last updated the transaction
-    """
-
-    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
-    """
-    Date when the transaction was created
-    """
-
-    updated_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
-    """
-    Date when the transaction was last updated
-    """
-
-    bank_transaction_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the bank transaction
-    """
-
-    transaction_type: typing.Optional[TransactionTransactionType] = pydantic.Field(default=None)
-    """
-    Type of transaction
-    """
-
-    ledger_type: typing.Optional[TransactionLedgerType] = pydantic.Field(default=None)
-    """
-    Ledger type of the transaction
-    """
-
-    bank_account_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the bank account
-    """
-
-    business_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the business
-    """
-
-    direction: typing.Optional[TransactionDirection] = pydantic.Field(default=None)
-    """
-    Direction of the transaction
-    """
-
-    balance: typing.Optional[float] = pydantic.Field(default=None)
-    """
-    Balance after the transaction
-    """
-
-    counterparty_name: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Name of the counterparty
-    """
-
-    categorization_status: typing_extensions.Annotated[
-        typing.Optional[TransactionCategorizationStatus], FieldMetadata(alias="categorizationStatus")
-    ] = pydantic.Field(default=None)
-    """
-    Status of categorization
-    """
-
-    category_id: typing.Optional[int] = pydantic.Field(default=None)
-    """
-    ID of the category
-    """
-
-    company_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the company
-    """
-
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
-    """
-    Additional metadata for the transaction
-    """
+    id: typing.Optional[str] = None
+    entity_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="entityId")] = None
+    timestamp: typing.Optional[dt.datetime] = None
+    amount: typing.Optional[float] = None
+    currency: typing.Optional[str] = None
+    description: typing.Optional[str] = None
+    debit_account_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="debitAccountId")] = None
+    credit_account_id: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="creditAccountId")] = None
+    status: typing.Optional[TransactionStatus] = None
+    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

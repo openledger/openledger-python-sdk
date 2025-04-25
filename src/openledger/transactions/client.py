@@ -3,26 +3,22 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
-from .types.get_id_transactions_response import GetIdTransactionsResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..types.transaction import Transaction
 from ..core.pydantic_utilities import parse_obj_as
-from ..errors.not_found_error import NotFoundError
-from ..types.error import Error
+from ..errors.bad_request_error import BadRequestError
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 import datetime as dt
-from ..types.transaction_status import TransactionStatus
-from ..types.transaction_transaction_type import TransactionTransactionType
-from ..types.transaction_ledger_type import TransactionLedgerType
-from ..types.transaction_direction import TransactionDirection
-from ..types.transaction_categorization_status import TransactionCategorizationStatus
-from ..types.transaction import Transaction
-from ..errors.bad_request_error import BadRequestError
-from .types.export_transaction_request_format import ExportTransactionRequestFormat
-from .types.export_transaction_response import ExportTransactionResponse
-from .types.get_transactions_by_month_response import GetTransactionsByMonthResponse
+from .types.transaction_request_status import TransactionRequestStatus
+from .types.post_transactions_response import PostTransactionsResponse
+from .types.put_transactions_response import PutTransactionsResponse
+from .types.delete_transactions_response import DeleteTransactionsResponse
+from ..errors.not_found_error import NotFoundError
+from .types.post_transactions_categorize_response import PostTransactionsCategorizeResponse
+from .types.transaction_search_request_filters import TransactionSearchRequestFilters
+from .types.post_transactions_search_response import PostTransactionsSearchResponse
 from ..core.serialization import convert_and_respect_annotation_metadata
-from .types.suggest_transaction_categories_response_item import SuggestTransactionCategoriesResponseItem
+from .types.get_transactions_chat_response import GetTransactionsChatResponse
 from ..core.client_wrapper import AsyncClientWrapper
 
 # this is used as the default value for optional parameters
@@ -34,20 +30,22 @@ class TransactionsClient:
         self._client_wrapper = client_wrapper
 
     def get_transactions_by_company(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetIdTransactionsResponse:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.List[Transaction]:
         """
+        Get all transactions for a company with optional filters
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetIdTransactionsResponse
+        typing.List[Transaction]
             List of transactions
 
         Examples
@@ -58,29 +56,32 @@ class TransactionsClient:
             token="YOUR_TOKEN",
         )
         client.transactions.get_transactions_by_company(
-            id="id",
+            entity_id="entityId",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions",
+            "transactions",
             method="GET",
+            params={
+                "entityId": entity_id,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    GetIdTransactionsResponse,
+                    typing.List[Transaction],
                     parse_obj_as(
-                        type_=GetIdTransactionsResponse,  # type: ignore
+                        type_=typing.List[Transaction],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
-            if _response.status_code == 404:
-                raise NotFoundError(
+            if _response.status_code == 400:
+                raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -90,113 +91,51 @@ class TransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_a_new_transaction(
+    def create_transaction(
         self,
-        id_: str,
         *,
-        id: typing.Optional[str] = OMIT,
+        entity_id: str,
+        amount: float,
+        description: str,
+        debit_account_id: str,
+        credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
-        amount: typing.Optional[float] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionStatus] = OMIT,
-        created_by: typing.Optional[int] = OMIT,
-        updated_by: typing.Optional[int] = OMIT,
-        created_at: typing.Optional[dt.datetime] = OMIT,
-        updated_at: typing.Optional[dt.datetime] = OMIT,
-        bank_transaction_id: typing.Optional[str] = OMIT,
-        transaction_type: typing.Optional[TransactionTransactionType] = OMIT,
-        ledger_type: typing.Optional[TransactionLedgerType] = OMIT,
-        bank_account_id: typing.Optional[str] = OMIT,
-        business_id: typing.Optional[str] = OMIT,
-        direction: typing.Optional[TransactionDirection] = OMIT,
-        balance: typing.Optional[float] = OMIT,
-        counterparty_name: typing.Optional[str] = OMIT,
-        categorization_status: typing.Optional[TransactionCategorizationStatus] = OMIT,
-        category_id: typing.Optional[int] = OMIT,
-        company_id: typing.Optional[str] = OMIT,
+        status: typing.Optional[TransactionRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Transaction:
+    ) -> PostTransactionsResponse:
         """
+        Create a new transaction
+
         Parameters
         ----------
-        id_ : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        id : typing.Optional[str]
-            Unique identifier for the transaction
+        amount : float
+
+        description : str
+
+        debit_account_id : str
+
+        credit_account_id : str
 
         date : typing.Optional[dt.datetime]
-            Date of the transaction
-
-        amount : typing.Optional[float]
-            Amount of the transaction
 
         currency : typing.Optional[str]
-            Currency of the transaction
 
-        description : typing.Optional[str]
-            Description of the transaction
-
-        status : typing.Optional[TransactionStatus]
-            Status of the transaction
-
-        created_by : typing.Optional[int]
-            ID of the user who created the transaction
-
-        updated_by : typing.Optional[int]
-            ID of the user who last updated the transaction
-
-        created_at : typing.Optional[dt.datetime]
-            Date when the transaction was created
-
-        updated_at : typing.Optional[dt.datetime]
-            Date when the transaction was last updated
-
-        bank_transaction_id : typing.Optional[str]
-            ID of the bank transaction
-
-        transaction_type : typing.Optional[TransactionTransactionType]
-            Type of transaction
-
-        ledger_type : typing.Optional[TransactionLedgerType]
-            Ledger type of the transaction
-
-        bank_account_id : typing.Optional[str]
-            ID of the bank account
-
-        business_id : typing.Optional[str]
-            ID of the business
-
-        direction : typing.Optional[TransactionDirection]
-            Direction of the transaction
-
-        balance : typing.Optional[float]
-            Balance after the transaction
-
-        counterparty_name : typing.Optional[str]
-            Name of the counterparty
-
-        categorization_status : typing.Optional[TransactionCategorizationStatus]
-            Status of categorization
-
-        category_id : typing.Optional[int]
-            ID of the category
-
-        company_id : typing.Optional[str]
-            ID of the company
+        status : typing.Optional[TransactionRequestStatus]
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Additional metadata for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Transaction
-            Transaction created successfully
+        PostTransactionsResponse
+            Transaction created
 
         Examples
         --------
@@ -205,35 +144,28 @@ class TransactionsClient:
         client = OpenLedgerClient(
             token="YOUR_TOKEN",
         )
-        client.transactions.create_a_new_transaction(
-            id_="id",
+        client.transactions.create_transaction(
+            entity_id="entityId",
+            amount=1.1,
+            description="description",
+            debit_account_id="debitAccountId",
+            credit_account_id="creditAccountId",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id_)}/transactions",
+            "transactions",
             method="POST",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "id": id,
                 "date": date,
                 "amount": amount,
                 "currency": currency,
                 "description": description,
+                "debitAccountId": debit_account_id,
+                "creditAccountId": credit_account_id,
                 "status": status,
-                "created_by": created_by,
-                "updated_by": updated_by,
-                "created_at": created_at,
-                "updated_at": updated_at,
-                "bank_transaction_id": bank_transaction_id,
-                "transaction_type": transaction_type,
-                "ledger_type": ledger_type,
-                "bank_account_id": bank_account_id,
-                "business_id": business_id,
-                "direction": direction,
-                "balance": balance,
-                "counterparty_name": counterparty_name,
-                "categorizationStatus": categorization_status,
-                "category_id": category_id,
-                "company_id": company_id,
                 "metadata": metadata,
             },
             request_options=request_options,
@@ -242,28 +174,18 @@ class TransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Transaction,
+                    PostTransactionsResponse,
                     parse_obj_as(
-                        type_=Transaction,  # type: ignore
+                        type_=PostTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -273,117 +195,26 @@ class TransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def edit_a_transaction(
-        self,
-        id_: str,
-        transaction_id: str,
-        *,
-        id: typing.Optional[str] = OMIT,
-        date: typing.Optional[dt.datetime] = OMIT,
-        amount: typing.Optional[float] = OMIT,
-        currency: typing.Optional[str] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionStatus] = OMIT,
-        created_by: typing.Optional[int] = OMIT,
-        updated_by: typing.Optional[int] = OMIT,
-        created_at: typing.Optional[dt.datetime] = OMIT,
-        updated_at: typing.Optional[dt.datetime] = OMIT,
-        bank_transaction_id: typing.Optional[str] = OMIT,
-        transaction_type: typing.Optional[TransactionTransactionType] = OMIT,
-        ledger_type: typing.Optional[TransactionLedgerType] = OMIT,
-        bank_account_id: typing.Optional[str] = OMIT,
-        business_id: typing.Optional[str] = OMIT,
-        direction: typing.Optional[TransactionDirection] = OMIT,
-        balance: typing.Optional[float] = OMIT,
-        counterparty_name: typing.Optional[str] = OMIT,
-        categorization_status: typing.Optional[TransactionCategorizationStatus] = OMIT,
-        category_id: typing.Optional[int] = OMIT,
-        company_id: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Transaction:
+    def approve_transaction(
+        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> PutTransactionsResponse:
         """
+        Approve a transaction
+
         Parameters
         ----------
-        id_ : str
-            Company ID
+        entity_id : str
+            entity ID
 
         transaction_id : str
-            Transaction ID
-
-        id : typing.Optional[str]
-            Unique identifier for the transaction
-
-        date : typing.Optional[dt.datetime]
-            Date of the transaction
-
-        amount : typing.Optional[float]
-            Amount of the transaction
-
-        currency : typing.Optional[str]
-            Currency of the transaction
-
-        description : typing.Optional[str]
-            Description of the transaction
-
-        status : typing.Optional[TransactionStatus]
-            Status of the transaction
-
-        created_by : typing.Optional[int]
-            ID of the user who created the transaction
-
-        updated_by : typing.Optional[int]
-            ID of the user who last updated the transaction
-
-        created_at : typing.Optional[dt.datetime]
-            Date when the transaction was created
-
-        updated_at : typing.Optional[dt.datetime]
-            Date when the transaction was last updated
-
-        bank_transaction_id : typing.Optional[str]
-            ID of the bank transaction
-
-        transaction_type : typing.Optional[TransactionTransactionType]
-            Type of transaction
-
-        ledger_type : typing.Optional[TransactionLedgerType]
-            Ledger type of the transaction
-
-        bank_account_id : typing.Optional[str]
-            ID of the bank account
-
-        business_id : typing.Optional[str]
-            ID of the business
-
-        direction : typing.Optional[TransactionDirection]
-            Direction of the transaction
-
-        balance : typing.Optional[float]
-            Balance after the transaction
-
-        counterparty_name : typing.Optional[str]
-            Name of the counterparty
-
-        categorization_status : typing.Optional[TransactionCategorizationStatus]
-            Status of categorization
-
-        category_id : typing.Optional[int]
-            ID of the category
-
-        company_id : typing.Optional[str]
-            ID of the company
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Additional metadata for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Transaction
-            Transaction updated successfully
+        PutTransactionsResponse
+            Transaction approved
 
         Examples
         --------
@@ -392,37 +223,19 @@ class TransactionsClient:
         client = OpenLedgerClient(
             token="YOUR_TOKEN",
         )
-        client.transactions.edit_a_transaction(
-            id_="id",
+        client.transactions.approve_transaction(
+            entity_id="entityId",
             transaction_id="transactionId",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id_)}/transactions/{jsonable_encoder(transaction_id)}",
+            "transactions",
             method="PUT",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "id": id,
-                "date": date,
-                "amount": amount,
-                "currency": currency,
-                "description": description,
-                "status": status,
-                "created_by": created_by,
-                "updated_by": updated_by,
-                "created_at": created_at,
-                "updated_at": updated_at,
-                "bank_transaction_id": bank_transaction_id,
-                "transaction_type": transaction_type,
-                "ledger_type": ledger_type,
-                "bank_account_id": bank_account_id,
-                "business_id": business_id,
-                "direction": direction,
-                "balance": balance,
-                "counterparty_name": counterparty_name,
-                "categorizationStatus": categorization_status,
-                "category_id": category_id,
-                "company_id": company_id,
-                "metadata": metadata,
+                "transactionId": transaction_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -430,28 +243,18 @@ class TransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Transaction,
+                    PutTransactionsResponse,
                     parse_obj_as(
-                        type_=Transaction,  # type: ignore
+                        type_=PutTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -461,37 +264,27 @@ class TransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def export_transaction(
-        self,
-        id: str,
-        *,
-        format: typing.Optional[ExportTransactionRequestFormat] = None,
-        start_date: typing.Optional[str] = None,
-        end_date: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ExportTransactionResponse:
+    def delete_transaction(
+        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> DeleteTransactionsResponse:
         """
+        Delete a transaction
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        format : typing.Optional[ExportTransactionRequestFormat]
-            Export format
-
-        start_date : typing.Optional[str]
-            Start date for filtering transactions
-
-        end_date : typing.Optional[str]
-            End date for filtering transactions
+        transaction_id : str
+            Transaction ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ExportTransactionResponse
-            Transactions exported successfully
+        DeleteTransactionsResponse
+            Transaction deleted
 
         Examples
         --------
@@ -500,45 +293,35 @@ class TransactionsClient:
         client = OpenLedgerClient(
             token="YOUR_TOKEN",
         )
-        client.transactions.export_transaction(
-            id="id",
+        client.transactions.delete_transaction(
+            entity_id="entityId",
+            transaction_id="transactionId",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/export",
-            method="GET",
+            "transactions",
+            method="DELETE",
             params={
-                "format": format,
-                "startDate": start_date,
-                "endDate": end_date,
+                "entityId": entity_id,
+                "transactionId": transaction_id,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    ExportTransactionResponse,
+                    DeleteTransactionsResponse,
                     parse_obj_as(
-                        type_=ExportTransactionResponse,  # type: ignore
+                        type_=DeleteTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
-                )
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -549,24 +332,28 @@ class TransactionsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def get_transactions_by_month(
-        self, id: str, month: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetTransactionsByMonthResponse:
+        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> None:
         """
+        Get transactions for a specified month
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
         month : str
-            Month in YYYY-MM format
+            Month (1-12)
+
+        year : str
+            Year (YYYY)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetTransactionsByMonthResponse
-            List of transactions for the specified month
+        None
 
         Examples
         --------
@@ -576,40 +363,30 @@ class TransactionsClient:
             token="YOUR_TOKEN",
         )
         client.transactions.get_transactions_by_month(
-            id="id",
+            entity_id="entityId",
             month="month",
+            year="year",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/month/{jsonable_encoder(month)}",
+            "transactions/by-month",
             method="GET",
+            params={
+                "entityId": entity_id,
+                "month": month,
+                "year": year,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    GetTransactionsByMonthResponse,
-                    parse_obj_as(
-                        type_=GetTransactionsByMonthResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
+                return
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -619,223 +396,33 @@ class TransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def prompt_transaction(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Dict[str, typing.Optional[typing.Any]]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Dict[str, typing.Optional[typing.Any]]
-            Transaction prompt successful
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.transactions.prompt_transaction(
-            id="id",
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/prompt",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.Dict[str, typing.Optional[typing.Any]],
-                    parse_obj_as(
-                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def classify_transaction(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.List[Transaction]
-            Transactions classified successfully
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.transactions.classify_transaction(
-            id="id",
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/classify",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.List[Transaction],
-                    parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def generate_general_ledger(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Dict[str, typing.Optional[typing.Any]]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Dict[str, typing.Optional[typing.Any]]
-            General ledger generated successfully
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.transactions.generate_general_ledger(
-            id="id",
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/general-ledger",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.Dict[str, typing.Optional[typing.Any]],
-                    parse_obj_as(
-                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def bulk_create_transactions(
-        self, id: str, *, request: typing.Sequence[Transaction], request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request : typing.Sequence[Transaction]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.List[Transaction]
-            Transactions created successfully
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient, Transaction
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.transactions.bulk_create_transactions(
-            id="id",
-            request=[Transaction()],
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/bulk",
-            method="POST",
-            json=convert_and_respect_annotation_metadata(
-                object_=request, annotation=typing.Sequence[Transaction], direction="write"
-            ),
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.List[Transaction],
-                    parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def suggest_transaction_categories(
+    def categorize_transaction(
         self,
-        id: str,
         *,
-        transactions: typing.Optional[typing.Sequence[Transaction]] = OMIT,
+        entity_id: str,
+        transaction_id: str,
+        category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.List[SuggestTransactionCategoriesResponseItem]:
+    ) -> PostTransactionsCategorizeResponse:
         """
+        Assign a category to a transaction
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        transactions : typing.Optional[typing.Sequence[Transaction]]
+        transaction_id : str
+
+        category_id : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        typing.List[SuggestTransactionCategoriesResponseItem]
-            Categories suggested successfully
+        PostTransactionsCategorizeResponse
+            Transaction categorized
 
         Examples
         --------
@@ -844,17 +431,21 @@ class TransactionsClient:
         client = OpenLedgerClient(
             token="YOUR_TOKEN",
         )
-        client.transactions.suggest_transaction_categories(
-            id="id",
+        client.transactions.categorize_transaction(
+            entity_id="entityId",
+            transaction_id="transactionId",
+            category_id="categoryId",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/suggest-categories",
+            "transactions/categorize",
             method="POST",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "transactions": convert_and_respect_annotation_metadata(
-                    object_=transactions, annotation=typing.Sequence[Transaction], direction="write"
-                ),
+                "transactionId": transaction_id,
+                "categoryId": category_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -862,11 +453,184 @@ class TransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    typing.List[SuggestTransactionCategoriesResponseItem],
+                    PostTransactionsCategorizeResponse,
                     parse_obj_as(
-                        type_=typing.List[SuggestTransactionCategoriesResponseItem],  # type: ignore
+                        type_=PostTransactionsCategorizeResponse,  # type: ignore
                         object_=_response.json(),
                     ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def search_transactions(
+        self,
+        *,
+        entity_id: str,
+        query: typing.Optional[str] = OMIT,
+        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        page: typing.Optional[int] = OMIT,
+        limit: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PostTransactionsSearchResponse:
+        """
+        Search for transactions with various filters
+
+        Parameters
+        ----------
+        entity_id : str
+            entity ID
+
+        query : typing.Optional[str]
+
+        filters : typing.Optional[TransactionSearchRequestFilters]
+
+        page : typing.Optional[int]
+
+        limit : typing.Optional[int]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        PostTransactionsSearchResponse
+            Search results
+
+        Examples
+        --------
+        from openledger import OpenLedgerClient
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.search_transactions(
+            entity_id="entityId",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "transactions/search",
+            method="POST",
+            params={
+                "entityId": entity_id,
+            },
+            json={
+                "query": query,
+                "filters": convert_and_respect_annotation_metadata(
+                    object_=filters, annotation=TransactionSearchRequestFilters, direction="write"
+                ),
+                "page": page,
+                "limit": limit,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    PostTransactionsSearchResponse,
+                    parse_obj_as(
+                        type_=PostTransactionsSearchResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def chat_with_transactions(
+        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> GetTransactionsChatResponse:
+        """
+        Natural language interaction with transactions
+
+        Parameters
+        ----------
+        entity_id : str
+            entity ID
+
+        prompt : str
+            Natural language prompt
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetTransactionsChatResponse
+            AI response
+
+        Examples
+        --------
+        from openledger import OpenLedgerClient
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.chat_with_transactions(
+            entity_id="entityId",
+            prompt="prompt",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "transactions/chat",
+            method="GET",
+            params={
+                "entityId": entity_id,
+                "prompt": prompt,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    GetTransactionsChatResponse,
+                    parse_obj_as(
+                        type_=GetTransactionsChatResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
             _response_json = _response.json()
         except JSONDecodeError:
@@ -879,20 +643,22 @@ class AsyncTransactionsClient:
         self._client_wrapper = client_wrapper
 
     async def get_transactions_by_company(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetIdTransactionsResponse:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.List[Transaction]:
         """
+        Get all transactions for a company with optional filters
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetIdTransactionsResponse
+        typing.List[Transaction]
             List of transactions
 
         Examples
@@ -908,32 +674,35 @@ class AsyncTransactionsClient:
 
         async def main() -> None:
             await client.transactions.get_transactions_by_company(
-                id="id",
+                entity_id="entityId",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions",
+            "transactions",
             method="GET",
+            params={
+                "entityId": entity_id,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    GetIdTransactionsResponse,
+                    typing.List[Transaction],
                     parse_obj_as(
-                        type_=GetIdTransactionsResponse,  # type: ignore
+                        type_=typing.List[Transaction],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
-            if _response.status_code == 404:
-                raise NotFoundError(
+            if _response.status_code == 400:
+                raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -943,113 +712,51 @@ class AsyncTransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_a_new_transaction(
+    async def create_transaction(
         self,
-        id_: str,
         *,
-        id: typing.Optional[str] = OMIT,
+        entity_id: str,
+        amount: float,
+        description: str,
+        debit_account_id: str,
+        credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
-        amount: typing.Optional[float] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionStatus] = OMIT,
-        created_by: typing.Optional[int] = OMIT,
-        updated_by: typing.Optional[int] = OMIT,
-        created_at: typing.Optional[dt.datetime] = OMIT,
-        updated_at: typing.Optional[dt.datetime] = OMIT,
-        bank_transaction_id: typing.Optional[str] = OMIT,
-        transaction_type: typing.Optional[TransactionTransactionType] = OMIT,
-        ledger_type: typing.Optional[TransactionLedgerType] = OMIT,
-        bank_account_id: typing.Optional[str] = OMIT,
-        business_id: typing.Optional[str] = OMIT,
-        direction: typing.Optional[TransactionDirection] = OMIT,
-        balance: typing.Optional[float] = OMIT,
-        counterparty_name: typing.Optional[str] = OMIT,
-        categorization_status: typing.Optional[TransactionCategorizationStatus] = OMIT,
-        category_id: typing.Optional[int] = OMIT,
-        company_id: typing.Optional[str] = OMIT,
+        status: typing.Optional[TransactionRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Transaction:
+    ) -> PostTransactionsResponse:
         """
+        Create a new transaction
+
         Parameters
         ----------
-        id_ : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        id : typing.Optional[str]
-            Unique identifier for the transaction
+        amount : float
+
+        description : str
+
+        debit_account_id : str
+
+        credit_account_id : str
 
         date : typing.Optional[dt.datetime]
-            Date of the transaction
-
-        amount : typing.Optional[float]
-            Amount of the transaction
 
         currency : typing.Optional[str]
-            Currency of the transaction
 
-        description : typing.Optional[str]
-            Description of the transaction
-
-        status : typing.Optional[TransactionStatus]
-            Status of the transaction
-
-        created_by : typing.Optional[int]
-            ID of the user who created the transaction
-
-        updated_by : typing.Optional[int]
-            ID of the user who last updated the transaction
-
-        created_at : typing.Optional[dt.datetime]
-            Date when the transaction was created
-
-        updated_at : typing.Optional[dt.datetime]
-            Date when the transaction was last updated
-
-        bank_transaction_id : typing.Optional[str]
-            ID of the bank transaction
-
-        transaction_type : typing.Optional[TransactionTransactionType]
-            Type of transaction
-
-        ledger_type : typing.Optional[TransactionLedgerType]
-            Ledger type of the transaction
-
-        bank_account_id : typing.Optional[str]
-            ID of the bank account
-
-        business_id : typing.Optional[str]
-            ID of the business
-
-        direction : typing.Optional[TransactionDirection]
-            Direction of the transaction
-
-        balance : typing.Optional[float]
-            Balance after the transaction
-
-        counterparty_name : typing.Optional[str]
-            Name of the counterparty
-
-        categorization_status : typing.Optional[TransactionCategorizationStatus]
-            Status of categorization
-
-        category_id : typing.Optional[int]
-            ID of the category
-
-        company_id : typing.Optional[str]
-            ID of the company
+        status : typing.Optional[TransactionRequestStatus]
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Additional metadata for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Transaction
-            Transaction created successfully
+        PostTransactionsResponse
+            Transaction created
 
         Examples
         --------
@@ -1063,38 +770,31 @@ class AsyncTransactionsClient:
 
 
         async def main() -> None:
-            await client.transactions.create_a_new_transaction(
-                id_="id",
+            await client.transactions.create_transaction(
+                entity_id="entityId",
+                amount=1.1,
+                description="description",
+                debit_account_id="debitAccountId",
+                credit_account_id="creditAccountId",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id_)}/transactions",
+            "transactions",
             method="POST",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "id": id,
                 "date": date,
                 "amount": amount,
                 "currency": currency,
                 "description": description,
+                "debitAccountId": debit_account_id,
+                "creditAccountId": credit_account_id,
                 "status": status,
-                "created_by": created_by,
-                "updated_by": updated_by,
-                "created_at": created_at,
-                "updated_at": updated_at,
-                "bank_transaction_id": bank_transaction_id,
-                "transaction_type": transaction_type,
-                "ledger_type": ledger_type,
-                "bank_account_id": bank_account_id,
-                "business_id": business_id,
-                "direction": direction,
-                "balance": balance,
-                "counterparty_name": counterparty_name,
-                "categorizationStatus": categorization_status,
-                "category_id": category_id,
-                "company_id": company_id,
                 "metadata": metadata,
             },
             request_options=request_options,
@@ -1103,28 +803,18 @@ class AsyncTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Transaction,
+                    PostTransactionsResponse,
                     parse_obj_as(
-                        type_=Transaction,  # type: ignore
+                        type_=PostTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -1134,117 +824,26 @@ class AsyncTransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def edit_a_transaction(
-        self,
-        id_: str,
-        transaction_id: str,
-        *,
-        id: typing.Optional[str] = OMIT,
-        date: typing.Optional[dt.datetime] = OMIT,
-        amount: typing.Optional[float] = OMIT,
-        currency: typing.Optional[str] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionStatus] = OMIT,
-        created_by: typing.Optional[int] = OMIT,
-        updated_by: typing.Optional[int] = OMIT,
-        created_at: typing.Optional[dt.datetime] = OMIT,
-        updated_at: typing.Optional[dt.datetime] = OMIT,
-        bank_transaction_id: typing.Optional[str] = OMIT,
-        transaction_type: typing.Optional[TransactionTransactionType] = OMIT,
-        ledger_type: typing.Optional[TransactionLedgerType] = OMIT,
-        bank_account_id: typing.Optional[str] = OMIT,
-        business_id: typing.Optional[str] = OMIT,
-        direction: typing.Optional[TransactionDirection] = OMIT,
-        balance: typing.Optional[float] = OMIT,
-        counterparty_name: typing.Optional[str] = OMIT,
-        categorization_status: typing.Optional[TransactionCategorizationStatus] = OMIT,
-        category_id: typing.Optional[int] = OMIT,
-        company_id: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Transaction:
+    async def approve_transaction(
+        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> PutTransactionsResponse:
         """
+        Approve a transaction
+
         Parameters
         ----------
-        id_ : str
-            Company ID
+        entity_id : str
+            entity ID
 
         transaction_id : str
-            Transaction ID
-
-        id : typing.Optional[str]
-            Unique identifier for the transaction
-
-        date : typing.Optional[dt.datetime]
-            Date of the transaction
-
-        amount : typing.Optional[float]
-            Amount of the transaction
-
-        currency : typing.Optional[str]
-            Currency of the transaction
-
-        description : typing.Optional[str]
-            Description of the transaction
-
-        status : typing.Optional[TransactionStatus]
-            Status of the transaction
-
-        created_by : typing.Optional[int]
-            ID of the user who created the transaction
-
-        updated_by : typing.Optional[int]
-            ID of the user who last updated the transaction
-
-        created_at : typing.Optional[dt.datetime]
-            Date when the transaction was created
-
-        updated_at : typing.Optional[dt.datetime]
-            Date when the transaction was last updated
-
-        bank_transaction_id : typing.Optional[str]
-            ID of the bank transaction
-
-        transaction_type : typing.Optional[TransactionTransactionType]
-            Type of transaction
-
-        ledger_type : typing.Optional[TransactionLedgerType]
-            Ledger type of the transaction
-
-        bank_account_id : typing.Optional[str]
-            ID of the bank account
-
-        business_id : typing.Optional[str]
-            ID of the business
-
-        direction : typing.Optional[TransactionDirection]
-            Direction of the transaction
-
-        balance : typing.Optional[float]
-            Balance after the transaction
-
-        counterparty_name : typing.Optional[str]
-            Name of the counterparty
-
-        categorization_status : typing.Optional[TransactionCategorizationStatus]
-            Status of categorization
-
-        category_id : typing.Optional[int]
-            ID of the category
-
-        company_id : typing.Optional[str]
-            ID of the company
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Additional metadata for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Transaction
-            Transaction updated successfully
+        PutTransactionsResponse
+            Transaction approved
 
         Examples
         --------
@@ -1258,8 +857,8 @@ class AsyncTransactionsClient:
 
 
         async def main() -> None:
-            await client.transactions.edit_a_transaction(
-                id_="id",
+            await client.transactions.approve_transaction(
+                entity_id="entityId",
                 transaction_id="transactionId",
             )
 
@@ -1267,31 +866,13 @@ class AsyncTransactionsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id_)}/transactions/{jsonable_encoder(transaction_id)}",
+            "transactions",
             method="PUT",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "id": id,
-                "date": date,
-                "amount": amount,
-                "currency": currency,
-                "description": description,
-                "status": status,
-                "created_by": created_by,
-                "updated_by": updated_by,
-                "created_at": created_at,
-                "updated_at": updated_at,
-                "bank_transaction_id": bank_transaction_id,
-                "transaction_type": transaction_type,
-                "ledger_type": ledger_type,
-                "bank_account_id": bank_account_id,
-                "business_id": business_id,
-                "direction": direction,
-                "balance": balance,
-                "counterparty_name": counterparty_name,
-                "categorizationStatus": categorization_status,
-                "category_id": category_id,
-                "company_id": company_id,
-                "metadata": metadata,
+                "transactionId": transaction_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1299,28 +880,18 @@ class AsyncTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Transaction,
+                    PutTransactionsResponse,
                     parse_obj_as(
-                        type_=Transaction,  # type: ignore
+                        type_=PutTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -1330,37 +901,27 @@ class AsyncTransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def export_transaction(
-        self,
-        id: str,
-        *,
-        format: typing.Optional[ExportTransactionRequestFormat] = None,
-        start_date: typing.Optional[str] = None,
-        end_date: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ExportTransactionResponse:
+    async def delete_transaction(
+        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> DeleteTransactionsResponse:
         """
+        Delete a transaction
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        format : typing.Optional[ExportTransactionRequestFormat]
-            Export format
-
-        start_date : typing.Optional[str]
-            Start date for filtering transactions
-
-        end_date : typing.Optional[str]
-            End date for filtering transactions
+        transaction_id : str
+            Transaction ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ExportTransactionResponse
-            Transactions exported successfully
+        DeleteTransactionsResponse
+            Transaction deleted
 
         Examples
         --------
@@ -1374,48 +935,38 @@ class AsyncTransactionsClient:
 
 
         async def main() -> None:
-            await client.transactions.export_transaction(
-                id="id",
+            await client.transactions.delete_transaction(
+                entity_id="entityId",
+                transaction_id="transactionId",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/export",
-            method="GET",
+            "transactions",
+            method="DELETE",
             params={
-                "format": format,
-                "startDate": start_date,
-                "endDate": end_date,
+                "entityId": entity_id,
+                "transactionId": transaction_id,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    ExportTransactionResponse,
+                    DeleteTransactionsResponse,
                     parse_obj_as(
-                        type_=ExportTransactionResponse,  # type: ignore
+                        type_=DeleteTransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
-                )
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -1426,24 +977,28 @@ class AsyncTransactionsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def get_transactions_by_month(
-        self, id: str, month: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetTransactionsByMonthResponse:
+        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> None:
         """
+        Get transactions for a specified month
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
         month : str
-            Month in YYYY-MM format
+            Month (1-12)
+
+        year : str
+            Year (YYYY)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetTransactionsByMonthResponse
-            List of transactions for the specified month
+        None
 
         Examples
         --------
@@ -1458,43 +1013,33 @@ class AsyncTransactionsClient:
 
         async def main() -> None:
             await client.transactions.get_transactions_by_month(
-                id="id",
+                entity_id="entityId",
                 month="month",
+                year="year",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/month/{jsonable_encoder(month)}",
+            "transactions/by-month",
             method="GET",
+            params={
+                "entityId": entity_id,
+                "month": month,
+                "year": year,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    GetTransactionsByMonthResponse,
-                    parse_obj_as(
-                        type_=GetTransactionsByMonthResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
+                return
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
-                        Error,
+                        typing.Optional[typing.Any],
                         parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
+                            type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -1504,255 +1049,33 @@ class AsyncTransactionsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def prompt_transaction(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Dict[str, typing.Optional[typing.Any]]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Dict[str, typing.Optional[typing.Any]]
-            Transaction prompt successful
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.transactions.prompt_transaction(
-                id="id",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/prompt",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.Dict[str, typing.Optional[typing.Any]],
-                    parse_obj_as(
-                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def classify_transaction(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.List[Transaction]
-            Transactions classified successfully
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.transactions.classify_transaction(
-                id="id",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/classify",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.List[Transaction],
-                    parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def generate_general_ledger(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Dict[str, typing.Optional[typing.Any]]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Dict[str, typing.Optional[typing.Any]]
-            General ledger generated successfully
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.transactions.generate_general_ledger(
-                id="id",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/general-ledger",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.Dict[str, typing.Optional[typing.Any]],
-                    parse_obj_as(
-                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def bulk_create_transactions(
-        self, id: str, *, request: typing.Sequence[Transaction], request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
-        """
-        Parameters
-        ----------
-        id : str
-            Company ID
-
-        request : typing.Sequence[Transaction]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.List[Transaction]
-            Transactions created successfully
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient, Transaction
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.transactions.bulk_create_transactions(
-                id="id",
-                request=[Transaction()],
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/bulk",
-            method="POST",
-            json=convert_and_respect_annotation_metadata(
-                object_=request, annotation=typing.Sequence[Transaction], direction="write"
-            ),
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    typing.List[Transaction],
-                    parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def suggest_transaction_categories(
+    async def categorize_transaction(
         self,
-        id: str,
         *,
-        transactions: typing.Optional[typing.Sequence[Transaction]] = OMIT,
+        entity_id: str,
+        transaction_id: str,
+        category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.List[SuggestTransactionCategoriesResponseItem]:
+    ) -> PostTransactionsCategorizeResponse:
         """
+        Assign a category to a transaction
+
         Parameters
         ----------
-        id : str
-            Company ID
+        entity_id : str
+            entity ID
 
-        transactions : typing.Optional[typing.Sequence[Transaction]]
+        transaction_id : str
+
+        category_id : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        typing.List[SuggestTransactionCategoriesResponseItem]
-            Categories suggested successfully
+        PostTransactionsCategorizeResponse
+            Transaction categorized
 
         Examples
         --------
@@ -1766,20 +1089,24 @@ class AsyncTransactionsClient:
 
 
         async def main() -> None:
-            await client.transactions.suggest_transaction_categories(
-                id="id",
+            await client.transactions.categorize_transaction(
+                entity_id="entityId",
+                transaction_id="transactionId",
+                category_id="categoryId",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"{jsonable_encoder(id)}/transactions/suggest-categories",
+            "transactions/categorize",
             method="POST",
+            params={
+                "entityId": entity_id,
+            },
             json={
-                "transactions": convert_and_respect_annotation_metadata(
-                    object_=transactions, annotation=typing.Sequence[Transaction], direction="write"
-                ),
+                "transactionId": transaction_id,
+                "categoryId": category_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1787,11 +1114,200 @@ class AsyncTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    typing.List[SuggestTransactionCategoriesResponseItem],
+                    PostTransactionsCategorizeResponse,
                     parse_obj_as(
-                        type_=typing.List[SuggestTransactionCategoriesResponseItem],  # type: ignore
+                        type_=PostTransactionsCategorizeResponse,  # type: ignore
                         object_=_response.json(),
                     ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def search_transactions(
+        self,
+        *,
+        entity_id: str,
+        query: typing.Optional[str] = OMIT,
+        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        page: typing.Optional[int] = OMIT,
+        limit: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PostTransactionsSearchResponse:
+        """
+        Search for transactions with various filters
+
+        Parameters
+        ----------
+        entity_id : str
+            entity ID
+
+        query : typing.Optional[str]
+
+        filters : typing.Optional[TransactionSearchRequestFilters]
+
+        page : typing.Optional[int]
+
+        limit : typing.Optional[int]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        PostTransactionsSearchResponse
+            Search results
+
+        Examples
+        --------
+        import asyncio
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.transactions.search_transactions(
+                entity_id="entityId",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "transactions/search",
+            method="POST",
+            params={
+                "entityId": entity_id,
+            },
+            json={
+                "query": query,
+                "filters": convert_and_respect_annotation_metadata(
+                    object_=filters, annotation=TransactionSearchRequestFilters, direction="write"
+                ),
+                "page": page,
+                "limit": limit,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    PostTransactionsSearchResponse,
+                    parse_obj_as(
+                        type_=PostTransactionsSearchResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def chat_with_transactions(
+        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> GetTransactionsChatResponse:
+        """
+        Natural language interaction with transactions
+
+        Parameters
+        ----------
+        entity_id : str
+            entity ID
+
+        prompt : str
+            Natural language prompt
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetTransactionsChatResponse
+            AI response
+
+        Examples
+        --------
+        import asyncio
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.transactions.chat_with_transactions(
+                entity_id="entityId",
+                prompt="prompt",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "transactions/chat",
+            method="GET",
+            params={
+                "entityId": entity_id,
+                "prompt": prompt,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    GetTransactionsChatResponse,
+                    parse_obj_as(
+                        type_=GetTransactionsChatResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
             _response_json = _response.json()
         except JSONDecodeError:
