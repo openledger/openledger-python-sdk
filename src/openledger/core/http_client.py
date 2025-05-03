@@ -2,7 +2,6 @@
 
 import asyncio
 import email.utils
-import json
 import re
 import time
 import typing
@@ -11,7 +10,6 @@ from contextlib import asynccontextmanager, contextmanager
 from random import random
 
 import httpx
-
 from .file import File, convert_file_dict_to_httpx_tuples
 from .jsonable_encoder import jsonable_encoder
 from .query_encoder import encode_query
@@ -85,8 +83,8 @@ def _retry_timeout(response: httpx.Response, retries: int) -> float:
 
 
 def _should_retry(response: httpx.Response) -> bool:
-    retriable_400s = [429, 408, 409]
-    return response.status_code >= 500 or response.status_code in retriable_400s
+    retryable_400s = [429, 408, 409]
+    return response.status_code >= 500 or response.status_code in retryable_400s
 
 
 def remove_omit_from_dict(
@@ -183,7 +181,7 @@ class HttpClient:
         files: typing.Optional[typing.Dict[str, typing.Optional[typing.Union[File, typing.List[File]]]]] = None,
         headers: typing.Optional[typing.Dict[str, typing.Any]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-        retries: int = 0,
+        retries: int = 2,
         omit: typing.Optional[typing.Any] = None,
     ) -> httpx.Response:
         base_url = self.get_base_url(base_url)
@@ -227,9 +225,11 @@ class HttpClient:
             json=json_body,
             data=data_body,
             content=content,
-            files=convert_file_dict_to_httpx_tuples(remove_none_from_dict(files))
-            if (files is not None and files is not omit)
-            else None,
+            files=(
+                convert_file_dict_to_httpx_tuples(remove_omit_from_dict(remove_none_from_dict(files), omit))
+                if (files is not None and files is not omit)
+                else None
+            ),
             timeout=timeout,
         )
 
@@ -267,7 +267,7 @@ class HttpClient:
         files: typing.Optional[typing.Dict[str, typing.Optional[typing.Union[File, typing.List[File]]]]] = None,
         headers: typing.Optional[typing.Dict[str, typing.Any]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-        retries: int = 0,
+        retries: int = 2,
         omit: typing.Optional[typing.Any] = None,
     ) -> typing.Iterator[httpx.Response]:
         base_url = self.get_base_url(base_url)
@@ -311,9 +311,11 @@ class HttpClient:
             json=json_body,
             data=data_body,
             content=content,
-            files=convert_file_dict_to_httpx_tuples(remove_none_from_dict(files))
-            if (files is not None and files is not omit)
-            else None,
+            files=(
+                convert_file_dict_to_httpx_tuples(remove_omit_from_dict(remove_none_from_dict(files), omit))
+                if (files is not None and files is not omit)
+                else None
+            ),
             timeout=timeout,
         ) as stream:
             yield stream
@@ -355,7 +357,7 @@ class AsyncHttpClient:
         files: typing.Optional[typing.Dict[str, typing.Optional[typing.Union[File, typing.List[File]]]]] = None,
         headers: typing.Optional[typing.Dict[str, typing.Any]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-        retries: int = 0,
+        retries: int = 2,
         omit: typing.Optional[typing.Any] = None,
     ) -> httpx.Response:
         base_url = self.get_base_url(base_url)
@@ -400,7 +402,11 @@ class AsyncHttpClient:
             json=json_body,
             data=data_body,
             content=content,
-            files=convert_file_dict_to_httpx_tuples(remove_none_from_dict(files)) if files is not None else None,
+            files=(
+                convert_file_dict_to_httpx_tuples(remove_omit_from_dict(remove_none_from_dict(files), omit))
+                if files is not None
+                else None
+            ),
             timeout=timeout,
         )
 
@@ -437,7 +443,7 @@ class AsyncHttpClient:
         files: typing.Optional[typing.Dict[str, typing.Optional[typing.Union[File, typing.List[File]]]]] = None,
         headers: typing.Optional[typing.Dict[str, typing.Any]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-        retries: int = 0,
+        retries: int = 2,
         omit: typing.Optional[typing.Any] = None,
     ) -> typing.AsyncIterator[httpx.Response]:
         base_url = self.get_base_url(base_url)
@@ -481,7 +487,11 @@ class AsyncHttpClient:
             json=json_body,
             data=data_body,
             content=content,
-            files=convert_file_dict_to_httpx_tuples(remove_none_from_dict(files)) if files is not None else None,
+            files=(
+                convert_file_dict_to_httpx_tuples(remove_omit_from_dict(remove_none_from_dict(files), omit))
+                if files is not None
+                else None
+            ),
             timeout=timeout,
         ) as stream:
             yield stream

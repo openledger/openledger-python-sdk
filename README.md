@@ -1,14 +1,14 @@
 # Openledger Python Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Fopenledger%2Fopenledger-python-sdk)
-[![pypi](https://img.shields.io/pypi/v/OpenLedger)](https://pypi.python.org/pypi/OpenLedger)
+[![pypi](https://img.shields.io/pypi/v/openledger-python-sdk)](https://pypi.python.org/pypi/openledger-python-sdk)
 
 The Openledger Python library provides convenient access to the Openledger API from Python.
 
 ## Installation
 
 ```sh
-pip install OpenLedger
+pip install openledger-python-sdk
 ```
 
 ## Reference
@@ -21,14 +21,8 @@ Instantiate and use the client with the following:
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.authentication.generate_token(
-    client_id="client_id",
-    client_secret="client_secret",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
 ```
 
 ## Async Client
@@ -36,24 +30,12 @@ client.authentication.generate_token(
 The SDK also exports an `async` client so that you can make non-blocking calls to our API.
 
 ```python
-import asyncio
-
 from openledger import AsyncOpenLedgerClient
-
-client = AsyncOpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-
-
+import asyncio
+client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
 async def main() -> None:
-    await client.authentication.generate_token(
-        client_id="client_id",
-        client_secret="client_secret",
-    )
-
-
-asyncio.run(main())
-```
+    await client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
+asyncio.run(main())```
 
 ## Exception Handling
 
@@ -62,7 +44,6 @@ will be thrown.
 
 ```python
 from openledger.core.api_error import ApiError
-
 try:
     client.authentication.generate_token(...)
 except ApiError as e:
@@ -72,13 +53,26 @@ except ApiError as e:
 
 ## Advanced
 
+### Access Raw Response Data
+
+The SDK provides access to raw response data, including headers, through the `.with_raw_response` property.
+The `.with_raw_response` property returns a "raw" client that can be used to access the `.headers` and `.data` attributes.
+
+```python
+from openledger import OpenLedgerClient
+client = OpenLedgerClient(..., )
+response = client.authentication.with_raw_response.generate_token(...)
+print(response.headers)  # access the response headers
+print(response.data)  # access the underlying object
+```
+
 ### Retries
 
 The SDK is instrumented with automatic retries with exponential backoff. A request will be retried as long
-as the request is deemed retriable and the number of retry attempts has not grown larger than the configured
+as the request is deemed retryable and the number of retry attempts has not grown larger than the configured
 retry limit (default: 2).
 
-A request is deemed retriable when any of the following HTTP status codes is returned:
+A request is deemed retryable when any of the following HTTP status codes is returned:
 
 - [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
 - [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
@@ -99,12 +93,7 @@ The SDK defaults to a 60 second timeout. You can configure this with a timeout o
 ```python
 
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    ...,
-    timeout=20.0,
-)
-
+client = OpenLedgerClient(..., timeout=20.0, )
 
 # Override timeout for a specific method
 client.authentication.generate_token(..., request_options={
@@ -116,18 +105,11 @@ client.authentication.generate_token(..., request_options={
 
 You can override the `httpx` client to customize it for your use-case. Some common use-cases include support for proxies
 and transports.
-```python
-import httpx
-from openledger import OpenLedgerClient
 
-client = OpenLedgerClient(
-    ...,
-    httpx_client=httpx.Client(
-        proxies="http://my.test.proxy.example.com",
-        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
-    ),
-)
-```
+```python
+from openledger import OpenLedgerClient
+import httpx
+client = OpenLedgerClient(..., httpx_client=httpx.Client(proxies="http://my.test.proxy.example.com", transport=httpx.HTTPTransport(local_address="0.0.0.0"), ))```
 
 ## Contributing
 

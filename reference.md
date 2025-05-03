@@ -28,14 +28,8 @@ Generate a JWT token for API authentication
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.authentication.generate_token(
-    client_id="client_id",
-    client_secret="client_secret",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
 
 ```
 </dd>
@@ -108,13 +102,8 @@ Get all transactions for a company with optional filters
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.get_transactions_by_company(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.get_transactions_by_company(entity_id='entityId', )
 
 ```
 </dd>
@@ -178,17 +167,8 @@ Create a new transaction
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.create_transaction(
-    entity_id="entityId",
-    amount=1.1,
-    description="description",
-    debit_account_id="debitAccountId",
-    credit_account_id="creditAccountId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.create_transaction(entity_id='entityId', amount=1.1, description='description', debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
 
 ```
 </dd>
@@ -316,14 +296,8 @@ Approve a transaction
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.approve_transaction(
-    entity_id="entityId",
-    transaction_id="transactionId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.approve_transaction(entity_id='entityId', transaction_id='transactionId', )
 
 ```
 </dd>
@@ -395,14 +369,8 @@ Delete a transaction
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.delete_transaction(
-    entity_id="entityId",
-    transaction_id="transactionId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.delete_transaction(entity_id='entityId', transaction_id='transactionId', )
 
 ```
 </dd>
@@ -474,15 +442,8 @@ Get transactions for a specified month
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.get_transactions_by_month(
-    entity_id="entityId",
-    month="month",
-    year="year",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.get_transactions_by_month(entity_id='entityId', month='month', year='year', )
 
 ```
 </dd>
@@ -562,15 +523,8 @@ Assign a category to a transaction
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.categorize_transaction(
-    entity_id="entityId",
-    transaction_id="transactionId",
-    category_id="categoryId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.categorize_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
 
 ```
 </dd>
@@ -650,13 +604,8 @@ Search for transactions with various filters
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.search_transactions(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.search_transactions(entity_id='entityId', )
 
 ```
 </dd>
@@ -752,14 +701,8 @@ Natural language interaction with transactions
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.transactions.chat_with_transactions(
-    entity_id="entityId",
-    prompt="prompt",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.transactions.chat_with_transactions(entity_id='entityId', prompt='prompt', )
 
 ```
 </dd>
@@ -832,13 +775,8 @@ Get financial statements including balance sheet, income statement, and cash flo
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.reports.get_financial_reports(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.reports.get_financial_reports(entity_id='entityId', )
 
 ```
 </dd>
@@ -926,13 +864,8 @@ Generate a general ledger report for an entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.reports.generate_general_ledger(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.reports.generate_general_ledger(entity_id='entityId', )
 
 ```
 </dd>
@@ -1013,13 +946,8 @@ Generate a link token for Plaid integration
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.banks.create_plaid_link_token(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.banks.create_plaid_link_token(entity_id='entityId', )
 
 ```
 </dd>
@@ -1083,14 +1011,8 @@ Add a bank account using public token from Plaid
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.banks.add_bank_account(
-    entity_id="entityId",
-    public_token="public_token",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.banks.add_bank_account(entity_id='entityId', public_token='public_token', )
 
 ```
 </dd>
@@ -1163,13 +1085,8 @@ Get status of all integrations for an entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.integrations.get_integration_status(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.integrations.get_integration_status(entity_id='entityId', )
 
 ```
 </dd>
@@ -1233,15 +1150,9 @@ Connect a third-party integration
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.integrations.connect_integration(
-    entity_id="entityId",
-    provider="provider",
-    authorization={"key": "value"},
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.integrations.connect_integration(entity_id='entityId', provider='provider', authorization={'key': 'value'
+}, )
 
 ```
 </dd>
@@ -1321,14 +1232,8 @@ Disconnect a third-party integration
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.integrations.disconnect_integration(
-    entity_id="entityId",
-    integration_id="integrationId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.integrations.disconnect_integration(entity_id='entityId', integration_id='integrationId', )
 
 ```
 </dd>
@@ -1401,13 +1306,8 @@ Get details for a specific entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.entities.get_entity_details(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.entities.get_entity_details(entity_id='entityId', )
 
 ```
 </dd>
@@ -1471,13 +1371,8 @@ Create a new entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.entities.create_entity(
-    legal_name="legalName",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.entities.create_entity(legal_name='legalName', )
 
 ```
 </dd>
@@ -1589,13 +1484,8 @@ Update an existing entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.entities.update_entity(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.entities.update_entity(entity_id='entityId', )
 
 ```
 </dd>
@@ -1707,13 +1597,8 @@ Delete an entity
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.entities.delete_entity(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.entities.delete_entity(entity_id='entityId', )
 
 ```
 </dd>
@@ -1778,14 +1663,8 @@ Perform semantic search across vectorized data
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.ai.semantic_search(
-    entity_id="entityId",
-    query="query",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.ai.semantic_search(entity_id='entityId', query='query', )
 
 ```
 </dd>
@@ -1898,14 +1777,8 @@ Creates a complete sandbox environment for development and testing, including a 
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.sandbox.create_sandbox_environment(
-    name="name",
-    developer_id="developer_id",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.sandbox.create_sandbox_environment(name='name', developer_id='developer_id', )
 
 ```
 </dd>
