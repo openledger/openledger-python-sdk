@@ -1,3 +1,3 @@
 from importlib import metadata
 
-__version__ = metadata.version("OpenLedger")
+__version__ = metadata.version("openledger-python-sdk")
