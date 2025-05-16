@@ -2,6 +2,16 @@
 
 # isort: skip_file
 
-from .types import PostIntegrationsConnectResponse, PostIntegrationsDisconnectResponse
+from .types import (
+    GetV1IntegrationsStatusResponse,
+    GetV1IntegrationsStatusResponseConnectionsItem,
+    PostV1IntegrationsConnectResponse,
+    PostV1IntegrationsDisconnectResponse,
+)
 
-__all__ = ["PostIntegrationsConnectResponse", "PostIntegrationsDisconnectResponse"]
+__all__ = [
+    "GetV1IntegrationsStatusResponse",
+    "GetV1IntegrationsStatusResponseConnectionsItem",
+    "PostV1IntegrationsConnectResponse",
+    "PostV1IntegrationsDisconnectResponse",
+]

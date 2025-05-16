@@ -10,9 +10,10 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
 from ..errors.internal_server_error import InternalServerError
-from ..types.integration_status_response import IntegrationStatusResponse
-from .types.post_integrations_connect_response import PostIntegrationsConnectResponse
-from .types.post_integrations_disconnect_response import PostIntegrationsDisconnectResponse
+from ..errors.not_found_error import NotFoundError
+from .types.get_v1integrations_status_response import GetV1IntegrationsStatusResponse
+from .types.post_v1integrations_connect_response import PostV1IntegrationsConnectResponse
+from .types.post_v1integrations_disconnect_response import PostV1IntegrationsDisconnectResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -24,25 +25,25 @@ class RawIntegrationsClient:
 
     def get_integration_status(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[IntegrationStatusResponse]:
+    ) -> HttpResponse[GetV1IntegrationsStatusResponse]:
         """
-        Get status of all integrations for an entity
+        Retrieves the status of all integrations for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get integration status for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[IntegrationStatusResponse]
-            Integration status
+        HttpResponse[GetV1IntegrationsStatusResponse]
+            Integration status retrieved successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "integrations/status",
+            "v1/integrations/status",
             method="GET",
             params={
                 "entityId": entity_id,
@@ -52,78 +53,9 @@ class RawIntegrationsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    IntegrationStatusResponse,
+                    GetV1IntegrationsStatusResponse,
                     parse_obj_as(
-                        type_=IntegrationStatusResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
-        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
-
-    def connect_integration(
-        self,
-        *,
-        entity_id: str,
-        provider: str,
-        authorization: typing.Dict[str, typing.Optional[typing.Any]],
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostIntegrationsConnectResponse]:
-        """
-        Connect a third-party integration
-
-        Parameters
-        ----------
-        entity_id : str
-            entity ID
-
-        provider : str
-
-        authorization : typing.Dict[str, typing.Optional[typing.Any]]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[PostIntegrationsConnectResponse]
-            Integration connected
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "integrations/connect",
-            method="POST",
-            params={
-                "entityId": entity_id,
-            },
-            json={
-                "provider": provider,
-                "authorization": authorization,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostIntegrationsConnectResponse,
-                    parse_obj_as(
-                        type_=PostIntegrationsConnectResponse,  # type: ignore
+                        type_=GetV1IntegrationsStatusResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -153,35 +85,43 @@ class RawIntegrationsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    def disconnect_integration(
-        self, *, entity_id: str, integration_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[PostIntegrationsDisconnectResponse]:
+    def connect_an_integration(
+        self,
+        *,
+        provider: str,
+        entity_id: str,
+        connection_type: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[PostV1IntegrationsConnectResponse]:
         """
-        Disconnect a third-party integration
+        Initiates the connection process for a third-party integration using the Unified API
 
         Parameters
         ----------
-        entity_id : str
-            entity ID
+        provider : str
+            The integration provider (e.g., quickbooks, xero)
 
-        integration_id : str
+        entity_id : str
+            The ID of the entity to connect the integration for
+
+        connection_type : typing.Optional[str]
+            The type of connection to establish (used as scope in Unified API)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostIntegrationsDisconnectResponse]
-            Integration disconnected
+        HttpResponse[PostV1IntegrationsConnectResponse]
+            Integration connection initiated successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "integrations/disconnect",
+            "v1/integrations/connect",
             method="POST",
-            params={
-                "entityId": entity_id,
-            },
             json={
-                "integrationId": integration_id,
+                "provider": provider,
+                "entityId": entity_id,
+                "connectionType": connection_type,
             },
             headers={
                 "content-type": "application/json",
@@ -192,15 +132,95 @@ class RawIntegrationsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostIntegrationsDisconnectResponse,
+                    PostV1IntegrationsConnectResponse,
                     parse_obj_as(
-                        type_=PostIntegrationsDisconnectResponse,  # type: ignore
+                        type_=PostV1IntegrationsConnectResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    def disconnect_an_integration(
+        self, *, entity_id: str, integration_type: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[PostV1IntegrationsDisconnectResponse]:
+        """
+        Disconnects an existing integration for an entity by removing it from the Unified Connections table
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity that owns the integration
+
+        integration_type : str
+            The type of integration to disconnect (must match connectionType in Unified Connections)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[PostV1IntegrationsDisconnectResponse]
+            Integration disconnected successfully
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/integrations/disconnect",
+            method="POST",
+            json={
+                "entityId": entity_id,
+                "integrationType": integration_type,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1IntegrationsDisconnectResponse,
+                    parse_obj_as(
+                        type_=PostV1IntegrationsDisconnectResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -231,25 +251,25 @@ class AsyncRawIntegrationsClient:
 
     async def get_integration_status(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[IntegrationStatusResponse]:
+    ) -> AsyncHttpResponse[GetV1IntegrationsStatusResponse]:
         """
-        Get status of all integrations for an entity
+        Retrieves the status of all integrations for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get integration status for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[IntegrationStatusResponse]
-            Integration status
+        AsyncHttpResponse[GetV1IntegrationsStatusResponse]
+            Integration status retrieved successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "integrations/status",
+            "v1/integrations/status",
             method="GET",
             params={
                 "entityId": entity_id,
@@ -259,78 +279,9 @@ class AsyncRawIntegrationsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    IntegrationStatusResponse,
+                    GetV1IntegrationsStatusResponse,
                     parse_obj_as(
-                        type_=IntegrationStatusResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
-        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
-
-    async def connect_integration(
-        self,
-        *,
-        entity_id: str,
-        provider: str,
-        authorization: typing.Dict[str, typing.Optional[typing.Any]],
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostIntegrationsConnectResponse]:
-        """
-        Connect a third-party integration
-
-        Parameters
-        ----------
-        entity_id : str
-            entity ID
-
-        provider : str
-
-        authorization : typing.Dict[str, typing.Optional[typing.Any]]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[PostIntegrationsConnectResponse]
-            Integration connected
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "integrations/connect",
-            method="POST",
-            params={
-                "entityId": entity_id,
-            },
-            json={
-                "provider": provider,
-                "authorization": authorization,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostIntegrationsConnectResponse,
-                    parse_obj_as(
-                        type_=PostIntegrationsConnectResponse,  # type: ignore
+                        type_=GetV1IntegrationsStatusResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -360,35 +311,43 @@ class AsyncRawIntegrationsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    async def disconnect_integration(
-        self, *, entity_id: str, integration_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[PostIntegrationsDisconnectResponse]:
+    async def connect_an_integration(
+        self,
+        *,
+        provider: str,
+        entity_id: str,
+        connection_type: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[PostV1IntegrationsConnectResponse]:
         """
-        Disconnect a third-party integration
+        Initiates the connection process for a third-party integration using the Unified API
 
         Parameters
         ----------
-        entity_id : str
-            entity ID
+        provider : str
+            The integration provider (e.g., quickbooks, xero)
 
-        integration_id : str
+        entity_id : str
+            The ID of the entity to connect the integration for
+
+        connection_type : typing.Optional[str]
+            The type of connection to establish (used as scope in Unified API)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostIntegrationsDisconnectResponse]
-            Integration disconnected
+        AsyncHttpResponse[PostV1IntegrationsConnectResponse]
+            Integration connection initiated successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "integrations/disconnect",
+            "v1/integrations/connect",
             method="POST",
-            params={
-                "entityId": entity_id,
-            },
             json={
-                "integrationId": integration_id,
+                "provider": provider,
+                "entityId": entity_id,
+                "connectionType": connection_type,
             },
             headers={
                 "content-type": "application/json",
@@ -399,15 +358,95 @@ class AsyncRawIntegrationsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostIntegrationsDisconnectResponse,
+                    PostV1IntegrationsConnectResponse,
                     parse_obj_as(
-                        type_=PostIntegrationsDisconnectResponse,  # type: ignore
+                        type_=PostV1IntegrationsConnectResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    async def disconnect_an_integration(
+        self, *, entity_id: str, integration_type: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[PostV1IntegrationsDisconnectResponse]:
+        """
+        Disconnects an existing integration for an entity by removing it from the Unified Connections table
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity that owns the integration
+
+        integration_type : str
+            The type of integration to disconnect (must match connectionType in Unified Connections)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[PostV1IntegrationsDisconnectResponse]
+            Integration disconnected successfully
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/integrations/disconnect",
+            method="POST",
+            json={
+                "entityId": entity_id,
+                "integrationType": integration_type,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1IntegrationsDisconnectResponse,
+                    parse_obj_as(
+                        type_=PostV1IntegrationsDisconnectResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(

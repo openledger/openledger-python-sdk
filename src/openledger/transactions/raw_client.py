@@ -11,16 +11,21 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
+from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
-from ..types.transaction import Transaction
-from .types.delete_transactions_response import DeleteTransactionsResponse
-from .types.get_transactions_chat_response import GetTransactionsChatResponse
-from .types.post_transactions_categorize_response import PostTransactionsCategorizeResponse
-from .types.post_transactions_response import PostTransactionsResponse
-from .types.post_transactions_search_response import PostTransactionsSearchResponse
-from .types.put_transactions_response import PutTransactionsResponse
-from .types.transaction_request_status import TransactionRequestStatus
-from .types.transaction_search_request_filters import TransactionSearchRequestFilters
+from .types.delete_v1transactions_response import DeleteV1TransactionsResponse
+from .types.get_v1transactions_by_month_response_item import GetV1TransactionsByMonthResponseItem
+from .types.get_v1transactions_chat_response import GetV1TransactionsChatResponse
+from .types.get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
+from .types.get_v1transactions_response import GetV1TransactionsResponse
+from .types.post_v1transactions_approve_request import PostV1TransactionsApproveRequest
+from .types.post_v1transactions_approve_response import PostV1TransactionsApproveResponse
+from .types.post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
+from .types.post_v1transactions_edit_response import PostV1TransactionsEditResponse
+from .types.post_v1transactions_request_status import PostV1TransactionsRequestStatus
+from .types.post_v1transactions_response import PostV1TransactionsResponse
+from .types.post_v1transactions_search_request_filters import PostV1TransactionsSearchRequestFilters
+from .types.post_v1transactions_search_response import PostV1TransactionsSearchResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -30,39 +35,52 @@ class RawTransactionsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_transactions_by_company(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[typing.List[Transaction]]:
+    def get_transactions_by_entity(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[GetV1TransactionsResponse]:
         """
-        Get all transactions for a company with optional filters
+        Retrieves all transactions for a specific entity with pagination
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get transactions for
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of transactions per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[typing.List[Transaction]]
-            List of transactions
+        HttpResponse[GetV1TransactionsResponse]
+            Transactions retrieved successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="GET",
             params={
                 "entityId": entity_id,
+                "cursor": cursor,
+                "pageSize": page_size,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    typing.List[Transaction],
+                    GetV1TransactionsResponse,
                     parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
+                        type_=GetV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -77,59 +95,77 @@ class RawTransactionsClient:
                         ),
                     )
                 )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    def create_transaction(
+    def create_a_new_transaction(
         self,
         *,
         entity_id: str,
         amount: float,
-        description: str,
         debit_account_id: str,
         credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionRequestStatus] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        status: typing.Optional[PostV1TransactionsRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostTransactionsResponse]:
+    ) -> HttpResponse[PostV1TransactionsResponse]:
         """
-        Create a new transaction
+        Creates a new transaction for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the transaction for
 
         amount : float
-
-        description : str
+            The amount of the transaction
 
         debit_account_id : str
+            ID of the account to debit
 
         credit_account_id : str
+            ID of the account to credit
 
         date : typing.Optional[dt.datetime]
+            When the transaction occurred (defaults to current time if not provided)
 
         currency : typing.Optional[str]
+            The currency of the transaction
 
-        status : typing.Optional[TransactionRequestStatus]
+        description : typing.Optional[str]
+            Description of the transaction
+
+        status : typing.Optional[PostV1TransactionsRequestStatus]
+            Status of the transaction
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            Additional transaction metadata
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostTransactionsResponse]
-            Transaction created
+        HttpResponse[PostV1TransactionsResponse]
+            Transaction created successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -153,9 +189,9 @@ class RawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsResponse,
+                    PostV1TransactionsResponse,
                     parse_obj_as(
-                        type_=PostTransactionsResponse,  # type: ignore
+                        type_=PostV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -170,59 +206,18 @@ class RawTransactionsClient:
                         ),
                     )
                 )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
-        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
-
-    def approve_transaction(
-        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[PutTransactionsResponse]:
-        """
-        Approve a transaction
-
-        Parameters
-        ----------
-        entity_id : str
-            entity ID
-
-        transaction_id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[PutTransactionsResponse]
-            Transaction approved
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "transactions",
-            method="PUT",
-            params={
-                "entityId": entity_id,
-            },
-            json={
-                "transactionId": transaction_id,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PutTransactionsResponse,
-                    parse_obj_as(
-                        type_=PutTransactionsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -236,30 +231,30 @@ class RawTransactionsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    def delete_transaction(
+    def delete_a_transaction(
         self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[DeleteTransactionsResponse]:
+    ) -> HttpResponse[DeleteV1TransactionsResponse]:
         """
-        Delete a transaction
+        Deletes an existing transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
-            Transaction ID
+            The ID of the transaction to delete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[DeleteTransactionsResponse]
-            Transaction deleted
+        HttpResponse[DeleteV1TransactionsResponse]
+            Transaction deleted successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="DELETE",
             params={
                 "entityId": entity_id,
@@ -270,15 +265,204 @@ class RawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    DeleteTransactionsResponse,
+                    DeleteV1TransactionsResponse,
                     parse_obj_as(
-                        type_=DeleteTransactionsResponse,  # type: ignore
+                        type_=DeleteV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    def edit_a_transaction(
+        self,
+        *,
+        id: str,
+        debit_account_id: typing.Optional[str] = OMIT,
+        credit_account_id: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[PostV1TransactionsEditResponse]:
+        """
+        Edit an existing transaction by updating its accounts and/or description
+
+        Parameters
+        ----------
+        id : str
+            The ID of the transaction to edit
+
+        debit_account_id : typing.Optional[str]
+            ID of the account to debit (optional if credit_account_id is provided)
+
+        credit_account_id : typing.Optional[str]
+            ID of the account to credit (optional if debit_account_id is provided)
+
+        description : typing.Optional[str]
+            New description for the transaction
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[PostV1TransactionsEditResponse]
+            Transaction edited successfully
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/transactions/edit",
+            method="POST",
+            json={
+                "id": id,
+                "debit_account_id": debit_account_id,
+                "credit_account_id": credit_account_id,
+                "description": description,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1TransactionsEditResponse,
+                    parse_obj_as(
+                        type_=PostV1TransactionsEditResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    def approve_one_or_multiple_transactions(
+        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[PostV1TransactionsApproveResponse]:
+        """
+        Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
+
+        Parameters
+        ----------
+        request : PostV1TransactionsApproveRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[PostV1TransactionsApproveResponse]
+            Transactions approved successfully
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/transactions/approve",
+            method="POST",
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=PostV1TransactionsApproveRequest, direction="write"
+            ),
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1TransactionsApproveResponse,
+                    parse_obj_as(
+                        type_=PostV1TransactionsApproveResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -293,44 +477,54 @@ class RawTransactionsClient:
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     def get_transactions_by_month(
-        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[None]:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[typing.List[GetV1TransactionsByMonthResponseItem]]:
         """
-        Get transactions for a specified month
+        Retrieve monthly transaction summaries for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
-
-        month : str
-            Month (1-12)
-
-        year : str
-            Year (YYYY)
+            The ID of the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[None]
+        HttpResponse[typing.List[GetV1TransactionsByMonthResponseItem]]
+            List of monthly transaction summaries
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions/by-month",
+            "v1/transactions/by-month",
             method="GET",
             params={
                 "entityId": entity_id,
-                "month": month,
-                "year": year,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return HttpResponse(response=_response, data=None)
+                _data = typing.cast(
+                    typing.List[GetV1TransactionsByMonthResponseItem],
+                    parse_obj_as(
+                        type_=typing.List[GetV1TransactionsByMonthResponseItem],  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -344,36 +538,38 @@ class RawTransactionsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    def categorize_transaction(
+    def categorize_a_transaction(
         self,
         *,
         entity_id: str,
         transaction_id: str,
         category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostTransactionsCategorizeResponse]:
+    ) -> HttpResponse[PostV1TransactionsCategorizeResponse]:
         """
         Assign a category to a transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to categorize
 
         category_id : str
+            The ID of the category to assign
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostTransactionsCategorizeResponse]
-            Transaction categorized
+        HttpResponse[PostV1TransactionsCategorizeResponse]
+            Transaction categorized successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions/categorize",
+            "v1/transactions/categorize",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -391,9 +587,9 @@ class RawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsCategorizeResponse,
+                    PostV1TransactionsCategorizeResponse,
                     parse_obj_as(
-                        type_=PostTransactionsCategorizeResponse,  # type: ignore
+                        type_=PostV1TransactionsCategorizeResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -410,6 +606,16 @@ class RawTransactionsClient:
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -428,37 +634,40 @@ class RawTransactionsClient:
         *,
         entity_id: str,
         query: typing.Optional[str] = OMIT,
-        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        filters: typing.Optional[PostV1TransactionsSearchRequestFilters] = OMIT,
         page: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostTransactionsSearchResponse]:
+    ) -> HttpResponse[PostV1TransactionsSearchResponse]:
         """
-        Search for transactions with various filters
+        Search for transactions using various filters and text search
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to search transactions for
 
         query : typing.Optional[str]
+            Text to search in transaction descriptions
 
-        filters : typing.Optional[TransactionSearchRequestFilters]
+        filters : typing.Optional[PostV1TransactionsSearchRequestFilters]
 
         page : typing.Optional[int]
+            Page number for pagination
 
         limit : typing.Optional[int]
+            Number of items per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostTransactionsSearchResponse]
-            Search results
+        HttpResponse[PostV1TransactionsSearchResponse]
+            Search results retrieved successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions/search",
+            "v1/transactions/search",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -466,7 +675,7 @@ class RawTransactionsClient:
             json={
                 "query": query,
                 "filters": convert_and_respect_annotation_metadata(
-                    object_=filters, annotation=TransactionSearchRequestFilters, direction="write"
+                    object_=filters, annotation=PostV1TransactionsSearchRequestFilters, direction="write"
                 ),
                 "page": page,
                 "limit": limit,
@@ -480,9 +689,9 @@ class RawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsSearchResponse,
+                    PostV1TransactionsSearchResponse,
                     parse_obj_as(
-                        type_=PostTransactionsSearchResponse,  # type: ignore
+                        type_=PostV1TransactionsSearchResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -497,54 +706,173 @@ class RawTransactionsClient:
                         ),
                     )
                 )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     def chat_with_transactions(
-        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[GetTransactionsChatResponse]:
+        self,
+        *,
+        entity_id: str,
+        prompt: str,
+        history: typing.Optional[str] = None,
+        context_data: typing.Optional[str] = None,
+        custom_prompt: typing.Optional[str] = None,
+        stream: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[GetV1TransactionsChatResponse]:
         """
-        Natural language interaction with transactions
+        Interact with transactions using natural language
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to chat about transactions for
 
         prompt : str
-            Natural language prompt
+            The natural language prompt
+
+        history : typing.Optional[str]
+            JSON string of conversation history
+
+        context_data : typing.Optional[str]
+            JSON string of additional context data
+
+        custom_prompt : typing.Optional[str]
+            Custom prompt to use instead of the main prompt
+
+        stream : typing.Optional[str]
+            Whether to stream the response
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[GetTransactionsChatResponse]
-            AI response
+        HttpResponse[GetV1TransactionsChatResponse]
+            Chat response
         """
         _response = self._client_wrapper.httpx_client.request(
-            "transactions/chat",
+            "v1/transactions/chat",
             method="GET",
             params={
                 "entityId": entity_id,
                 "prompt": prompt,
+                "history": history,
+                "contextData": context_data,
+                "customPrompt": custom_prompt,
+                "stream": stream,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetTransactionsChatResponse,
+                    GetV1TransactionsChatResponse,
                     parse_obj_as(
-                        type_=GetTransactionsChatResponse,  # type: ignore
+                        type_=GetV1TransactionsChatResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    def get_entity_counterparties(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[GetV1TransactionsCounterpartiesResponse]:
+        """
+        Get all counterparties for an entity with their transaction history and aggregated data
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of counterparties per page
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[GetV1TransactionsCounterpartiesResponse]
+            List of counterparties with their transaction history
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/transactions/counterparties",
+            method="GET",
+            params={
+                "entityId": entity_id,
+                "cursor": cursor,
+                "pageSize": page_size,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GetV1TransactionsCounterpartiesResponse,
+                    parse_obj_as(
+                        type_=GetV1TransactionsCounterpartiesResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -563,39 +891,52 @@ class AsyncRawTransactionsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_transactions_by_company(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[typing.List[Transaction]]:
+    async def get_transactions_by_entity(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[GetV1TransactionsResponse]:
         """
-        Get all transactions for a company with optional filters
+        Retrieves all transactions for a specific entity with pagination
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get transactions for
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of transactions per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[typing.List[Transaction]]
-            List of transactions
+        AsyncHttpResponse[GetV1TransactionsResponse]
+            Transactions retrieved successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="GET",
             params={
                 "entityId": entity_id,
+                "cursor": cursor,
+                "pageSize": page_size,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    typing.List[Transaction],
+                    GetV1TransactionsResponse,
                     parse_obj_as(
-                        type_=typing.List[Transaction],  # type: ignore
+                        type_=GetV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -610,59 +951,77 @@ class AsyncRawTransactionsClient:
                         ),
                     )
                 )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    async def create_transaction(
+    async def create_a_new_transaction(
         self,
         *,
         entity_id: str,
         amount: float,
-        description: str,
         debit_account_id: str,
         credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionRequestStatus] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        status: typing.Optional[PostV1TransactionsRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostTransactionsResponse]:
+    ) -> AsyncHttpResponse[PostV1TransactionsResponse]:
         """
-        Create a new transaction
+        Creates a new transaction for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the transaction for
 
         amount : float
-
-        description : str
+            The amount of the transaction
 
         debit_account_id : str
+            ID of the account to debit
 
         credit_account_id : str
+            ID of the account to credit
 
         date : typing.Optional[dt.datetime]
+            When the transaction occurred (defaults to current time if not provided)
 
         currency : typing.Optional[str]
+            The currency of the transaction
 
-        status : typing.Optional[TransactionRequestStatus]
+        description : typing.Optional[str]
+            Description of the transaction
+
+        status : typing.Optional[PostV1TransactionsRequestStatus]
+            Status of the transaction
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            Additional transaction metadata
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostTransactionsResponse]
-            Transaction created
+        AsyncHttpResponse[PostV1TransactionsResponse]
+            Transaction created successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -686,9 +1045,9 @@ class AsyncRawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsResponse,
+                    PostV1TransactionsResponse,
                     parse_obj_as(
-                        type_=PostTransactionsResponse,  # type: ignore
+                        type_=PostV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -703,59 +1062,18 @@ class AsyncRawTransactionsClient:
                         ),
                     )
                 )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
-        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
-
-    async def approve_transaction(
-        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[PutTransactionsResponse]:
-        """
-        Approve a transaction
-
-        Parameters
-        ----------
-        entity_id : str
-            entity ID
-
-        transaction_id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[PutTransactionsResponse]
-            Transaction approved
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "transactions",
-            method="PUT",
-            params={
-                "entityId": entity_id,
-            },
-            json={
-                "transactionId": transaction_id,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PutTransactionsResponse,
-                    parse_obj_as(
-                        type_=PutTransactionsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -769,30 +1087,30 @@ class AsyncRawTransactionsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    async def delete_transaction(
+    async def delete_a_transaction(
         self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[DeleteTransactionsResponse]:
+    ) -> AsyncHttpResponse[DeleteV1TransactionsResponse]:
         """
-        Delete a transaction
+        Deletes an existing transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
-            Transaction ID
+            The ID of the transaction to delete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[DeleteTransactionsResponse]
-            Transaction deleted
+        AsyncHttpResponse[DeleteV1TransactionsResponse]
+            Transaction deleted successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions",
+            "v1/transactions",
             method="DELETE",
             params={
                 "entityId": entity_id,
@@ -803,15 +1121,204 @@ class AsyncRawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    DeleteTransactionsResponse,
+                    DeleteV1TransactionsResponse,
                     parse_obj_as(
-                        type_=DeleteTransactionsResponse,  # type: ignore
+                        type_=DeleteV1TransactionsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    async def edit_a_transaction(
+        self,
+        *,
+        id: str,
+        debit_account_id: typing.Optional[str] = OMIT,
+        credit_account_id: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[PostV1TransactionsEditResponse]:
+        """
+        Edit an existing transaction by updating its accounts and/or description
+
+        Parameters
+        ----------
+        id : str
+            The ID of the transaction to edit
+
+        debit_account_id : typing.Optional[str]
+            ID of the account to debit (optional if credit_account_id is provided)
+
+        credit_account_id : typing.Optional[str]
+            ID of the account to credit (optional if debit_account_id is provided)
+
+        description : typing.Optional[str]
+            New description for the transaction
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[PostV1TransactionsEditResponse]
+            Transaction edited successfully
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/transactions/edit",
+            method="POST",
+            json={
+                "id": id,
+                "debit_account_id": debit_account_id,
+                "credit_account_id": credit_account_id,
+                "description": description,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1TransactionsEditResponse,
+                    parse_obj_as(
+                        type_=PostV1TransactionsEditResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    async def approve_one_or_multiple_transactions(
+        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[PostV1TransactionsApproveResponse]:
+        """
+        Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
+
+        Parameters
+        ----------
+        request : PostV1TransactionsApproveRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[PostV1TransactionsApproveResponse]
+            Transactions approved successfully
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/transactions/approve",
+            method="POST",
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=PostV1TransactionsApproveRequest, direction="write"
+            ),
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1TransactionsApproveResponse,
+                    parse_obj_as(
+                        type_=PostV1TransactionsApproveResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -826,44 +1333,54 @@ class AsyncRawTransactionsClient:
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     async def get_transactions_by_month(
-        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[None]:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[typing.List[GetV1TransactionsByMonthResponseItem]]:
         """
-        Get transactions for a specified month
+        Retrieve monthly transaction summaries for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
-
-        month : str
-            Month (1-12)
-
-        year : str
-            Year (YYYY)
+            The ID of the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[None]
+        AsyncHttpResponse[typing.List[GetV1TransactionsByMonthResponseItem]]
+            List of monthly transaction summaries
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions/by-month",
+            "v1/transactions/by-month",
             method="GET",
             params={
                 "entityId": entity_id,
-                "month": month,
-                "year": year,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return AsyncHttpResponse(response=_response, data=None)
+                _data = typing.cast(
+                    typing.List[GetV1TransactionsByMonthResponseItem],
+                    parse_obj_as(
+                        type_=typing.List[GetV1TransactionsByMonthResponseItem],  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -877,36 +1394,38 @@ class AsyncRawTransactionsClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    async def categorize_transaction(
+    async def categorize_a_transaction(
         self,
         *,
         entity_id: str,
         transaction_id: str,
         category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostTransactionsCategorizeResponse]:
+    ) -> AsyncHttpResponse[PostV1TransactionsCategorizeResponse]:
         """
         Assign a category to a transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to categorize
 
         category_id : str
+            The ID of the category to assign
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostTransactionsCategorizeResponse]
-            Transaction categorized
+        AsyncHttpResponse[PostV1TransactionsCategorizeResponse]
+            Transaction categorized successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions/categorize",
+            "v1/transactions/categorize",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -924,9 +1443,9 @@ class AsyncRawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsCategorizeResponse,
+                    PostV1TransactionsCategorizeResponse,
                     parse_obj_as(
-                        type_=PostTransactionsCategorizeResponse,  # type: ignore
+                        type_=PostV1TransactionsCategorizeResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -943,6 +1462,16 @@ class AsyncRawTransactionsClient:
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -961,37 +1490,40 @@ class AsyncRawTransactionsClient:
         *,
         entity_id: str,
         query: typing.Optional[str] = OMIT,
-        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        filters: typing.Optional[PostV1TransactionsSearchRequestFilters] = OMIT,
         page: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostTransactionsSearchResponse]:
+    ) -> AsyncHttpResponse[PostV1TransactionsSearchResponse]:
         """
-        Search for transactions with various filters
+        Search for transactions using various filters and text search
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to search transactions for
 
         query : typing.Optional[str]
+            Text to search in transaction descriptions
 
-        filters : typing.Optional[TransactionSearchRequestFilters]
+        filters : typing.Optional[PostV1TransactionsSearchRequestFilters]
 
         page : typing.Optional[int]
+            Page number for pagination
 
         limit : typing.Optional[int]
+            Number of items per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostTransactionsSearchResponse]
-            Search results
+        AsyncHttpResponse[PostV1TransactionsSearchResponse]
+            Search results retrieved successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions/search",
+            "v1/transactions/search",
             method="POST",
             params={
                 "entityId": entity_id,
@@ -999,7 +1531,7 @@ class AsyncRawTransactionsClient:
             json={
                 "query": query,
                 "filters": convert_and_respect_annotation_metadata(
-                    object_=filters, annotation=TransactionSearchRequestFilters, direction="write"
+                    object_=filters, annotation=PostV1TransactionsSearchRequestFilters, direction="write"
                 ),
                 "page": page,
                 "limit": limit,
@@ -1013,9 +1545,9 @@ class AsyncRawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostTransactionsSearchResponse,
+                    PostV1TransactionsSearchResponse,
                     parse_obj_as(
-                        type_=PostTransactionsSearchResponse,  # type: ignore
+                        type_=PostV1TransactionsSearchResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1030,54 +1562,173 @@ class AsyncRawTransactionsClient:
                         ),
                     )
                 )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     async def chat_with_transactions(
-        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[GetTransactionsChatResponse]:
+        self,
+        *,
+        entity_id: str,
+        prompt: str,
+        history: typing.Optional[str] = None,
+        context_data: typing.Optional[str] = None,
+        custom_prompt: typing.Optional[str] = None,
+        stream: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[GetV1TransactionsChatResponse]:
         """
-        Natural language interaction with transactions
+        Interact with transactions using natural language
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to chat about transactions for
 
         prompt : str
-            Natural language prompt
+            The natural language prompt
+
+        history : typing.Optional[str]
+            JSON string of conversation history
+
+        context_data : typing.Optional[str]
+            JSON string of additional context data
+
+        custom_prompt : typing.Optional[str]
+            Custom prompt to use instead of the main prompt
+
+        stream : typing.Optional[str]
+            Whether to stream the response
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[GetTransactionsChatResponse]
-            AI response
+        AsyncHttpResponse[GetV1TransactionsChatResponse]
+            Chat response
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "transactions/chat",
+            "v1/transactions/chat",
             method="GET",
             params={
                 "entityId": entity_id,
                 "prompt": prompt,
+                "history": history,
+                "contextData": context_data,
+                "customPrompt": custom_prompt,
+                "stream": stream,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetTransactionsChatResponse,
+                    GetV1TransactionsChatResponse,
                     parse_obj_as(
-                        type_=GetTransactionsChatResponse,  # type: ignore
+                        type_=GetV1TransactionsChatResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
+
+    async def get_entity_counterparties(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[GetV1TransactionsCounterpartiesResponse]:
+        """
+        Get all counterparties for an entity with their transaction history and aggregated data
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of counterparties per page
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[GetV1TransactionsCounterpartiesResponse]
+            List of counterparties with their transaction history
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/transactions/counterparties",
+            method="GET",
+            params={
+                "entityId": entity_id,
+                "cursor": cursor,
+                "pageSize": page_size,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GetV1TransactionsCounterpartiesResponse,
+                    parse_obj_as(
+                        type_=GetV1TransactionsCounterpartiesResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(

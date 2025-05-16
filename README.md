@@ -1,14 +1,14 @@
 # Openledger Python Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Fopenledger%2Fopenledger-python-sdk)
-[![pypi](https://img.shields.io/pypi/v/openledger-python-sdk)](https://pypi.python.org/pypi/openledger-python-sdk)
+[![pypi](https://img.shields.io/pypi/v/OpenLedger)](https://pypi.python.org/pypi/OpenLedger)
 
 The Openledger Python library provides convenient access to the Openledger API from Python.
 
 ## Installation
 
 ```sh
-pip install openledger-python-sdk
+pip install OpenLedger
 ```
 
 ## Reference
@@ -22,7 +22,7 @@ Instantiate and use the client with the following:
 ```python
 from openledger import OpenLedgerClient
 client = OpenLedgerClient(token="YOUR_TOKEN", )
-client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
+client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
 ```
 
 ## Async Client
@@ -34,7 +34,7 @@ from openledger import AsyncOpenLedgerClient
 import asyncio
 client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
 async def main() -> None:
-    await client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
+    await client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
 asyncio.run(main())```
 
 ## Exception Handling
@@ -45,7 +45,7 @@ will be thrown.
 ```python
 from openledger.core.api_error import ApiError
 try:
-    client.authentication.generate_token(...)
+    client.categories.create_a_new_category(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -61,7 +61,7 @@ The `.with_raw_response` property returns a "raw" client that can be used to acc
 ```python
 from openledger import OpenLedgerClient
 client = OpenLedgerClient(..., )
-response = client.authentication.with_raw_response.generate_token(...)
+response = client.categories.with_raw_response.create_a_new_category(...)
 print(response.headers)  # access the response headers
 print(response.data)  # access the underlying object
 ```
@@ -81,7 +81,7 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.authentication.generate_token(..., request_options={
+client.categories.create_a_new_category(..., request_options={
     "max_retries": 1
 })
 ```
@@ -96,7 +96,7 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(..., timeout=20.0, )
 
 # Override timeout for a specific method
-client.authentication.generate_token(..., request_options={
+client.categories.create_a_new_category(..., request_options={
     "timeout_in_seconds": 1
 })
 ```

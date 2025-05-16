@@ -4,4 +4,4 @@ import enum
 
 
 class OpenLedgerClientEnvironment(enum.Enum):
-    DEFAULT = "https://api.openledger.com/v1"
+    DEFAULT = "https://api-staging.openledger.com"

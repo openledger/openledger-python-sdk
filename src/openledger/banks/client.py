@@ -4,12 +4,9 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
-from ..types.bank_account_response import BankAccountResponse
-from ..types.link_token_response import LinkTokenResponse
 from .raw_client import AsyncRawBanksClient, RawBanksClient
-
-# this is used as the default value for optional parameters
-OMIT = typing.cast(typing.Any, ...)
+from .types.get_v1banks_create_link_response import GetV1BanksCreateLinkResponse
+from .types.put_v1banks_accounts_response import PutV1BanksAccountsResponse
 
 
 class BanksClient:
@@ -27,62 +24,63 @@ class BanksClient:
         """
         return self._raw_client
 
-    def create_plaid_link_token(
+    def create_a_bank_link(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> LinkTokenResponse:
+    ) -> GetV1BanksCreateLinkResponse:
         """
-        Generate a link token for Plaid integration
+        Creates a new Plaid link token for connecting a bank account
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the link token for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        LinkTokenResponse
-            Link token created
+        GetV1BanksCreateLinkResponse
+            Bank link created successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.banks.create_plaid_link_token(entity_id='entityId', )
+        client.banks.create_a_bank_link(entity_id='ent_123456', )
         """
-        _response = self._raw_client.create_plaid_link_token(entity_id=entity_id, request_options=request_options)
+        _response = self._raw_client.create_a_bank_link(entity_id=entity_id, request_options=request_options)
         return _response.data
 
-    def add_bank_account(
+    def add_bank_accounts(
         self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> BankAccountResponse:
+    ) -> PutV1BanksAccountsResponse:
         """
-        Add a bank account using public token from Plaid
+        Adds new bank accounts using a Plaid public token
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to add the bank accounts for
 
         public_token : str
+            The Plaid public token received from the Plaid Link onSuccess callback
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        BankAccountResponse
-            Bank account added
+        PutV1BanksAccountsResponse
+            Bank accounts added successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.banks.add_bank_account(entity_id='entityId', public_token='public_token', )
+        client.banks.add_bank_accounts(entity_id='ent_123456', public_token='public-sandbox-123456-abcdef', )
         """
-        _response = self._raw_client.add_bank_account(
+        _response = self._raw_client.add_bank_accounts(
             entity_id=entity_id, public_token=public_token, request_options=request_options
         )
         return _response.data
@@ -103,24 +101,24 @@ class AsyncBanksClient:
         """
         return self._raw_client
 
-    async def create_plaid_link_token(
+    async def create_a_bank_link(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> LinkTokenResponse:
+    ) -> GetV1BanksCreateLinkResponse:
         """
-        Generate a link token for Plaid integration
+        Creates a new Plaid link token for connecting a bank account
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the link token for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        LinkTokenResponse
-            Link token created
+        GetV1BanksCreateLinkResponse
+            Bank link created successfully
 
         Examples
         --------
@@ -128,32 +126,33 @@ class AsyncBanksClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.banks.create_plaid_link_token(entity_id='entityId', )
+            await client.banks.create_a_bank_link(entity_id='ent_123456', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.create_plaid_link_token(entity_id=entity_id, request_options=request_options)
+        _response = await self._raw_client.create_a_bank_link(entity_id=entity_id, request_options=request_options)
         return _response.data
 
-    async def add_bank_account(
+    async def add_bank_accounts(
         self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> BankAccountResponse:
+    ) -> PutV1BanksAccountsResponse:
         """
-        Add a bank account using public token from Plaid
+        Adds new bank accounts using a Plaid public token
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to add the bank accounts for
 
         public_token : str
+            The Plaid public token received from the Plaid Link onSuccess callback
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        BankAccountResponse
-            Bank account added
+        PutV1BanksAccountsResponse
+            Bank accounts added successfully
 
         Examples
         --------
@@ -161,10 +160,10 @@ class AsyncBanksClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.banks.add_bank_account(entity_id='entityId', public_token='public_token', )
+            await client.banks.add_bank_accounts(entity_id='ent_123456', public_token='public-sandbox-123456-abcdef', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.add_bank_account(
+        _response = await self._raw_client.add_bank_accounts(
             entity_id=entity_id, public_token=public_token, request_options=request_options
         )
         return _response.data

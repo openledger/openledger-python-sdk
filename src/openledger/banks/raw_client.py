@@ -10,38 +10,35 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
 from ..errors.internal_server_error import InternalServerError
-from ..types.bank_account_response import BankAccountResponse
-from ..types.link_token_response import LinkTokenResponse
-
-# this is used as the default value for optional parameters
-OMIT = typing.cast(typing.Any, ...)
+from .types.get_v1banks_create_link_response import GetV1BanksCreateLinkResponse
+from .types.put_v1banks_accounts_response import PutV1BanksAccountsResponse
 
 
 class RawBanksClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def create_plaid_link_token(
+    def create_a_bank_link(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[LinkTokenResponse]:
+    ) -> HttpResponse[GetV1BanksCreateLinkResponse]:
         """
-        Generate a link token for Plaid integration
+        Creates a new Plaid link token for connecting a bank account
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the link token for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[LinkTokenResponse]
-            Link token created
+        HttpResponse[GetV1BanksCreateLinkResponse]
+            Bank link created successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "banks/create-link",
+            "v1/banks/create-link",
             method="GET",
             params={
                 "entityId": entity_id,
@@ -51,9 +48,9 @@ class RawBanksClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    LinkTokenResponse,
+                    GetV1BanksCreateLinkResponse,
                     parse_obj_as(
-                        type_=LinkTokenResponse,  # type: ignore
+                        type_=GetV1BanksCreateLinkResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -83,48 +80,43 @@ class RawBanksClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    def add_bank_account(
+    def add_bank_accounts(
         self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[BankAccountResponse]:
+    ) -> HttpResponse[PutV1BanksAccountsResponse]:
         """
-        Add a bank account using public token from Plaid
+        Adds new bank accounts using a Plaid public token
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to add the bank accounts for
 
         public_token : str
+            The Plaid public token received from the Plaid Link onSuccess callback
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[BankAccountResponse]
-            Bank account added
+        HttpResponse[PutV1BanksAccountsResponse]
+            Bank accounts added successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "banks/accounts",
+            "v1/banks/accounts",
             method="PUT",
             params={
                 "entityId": entity_id,
-            },
-            json={
                 "public_token": public_token,
             },
-            headers={
-                "content-type": "application/json",
-            },
             request_options=request_options,
-            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    BankAccountResponse,
+                    PutV1BanksAccountsResponse,
                     parse_obj_as(
-                        type_=BankAccountResponse,  # type: ignore
+                        type_=PutV1BanksAccountsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -159,27 +151,27 @@ class AsyncRawBanksClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def create_plaid_link_token(
+    async def create_a_bank_link(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[LinkTokenResponse]:
+    ) -> AsyncHttpResponse[GetV1BanksCreateLinkResponse]:
         """
-        Generate a link token for Plaid integration
+        Creates a new Plaid link token for connecting a bank account
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the link token for
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[LinkTokenResponse]
-            Link token created
+        AsyncHttpResponse[GetV1BanksCreateLinkResponse]
+            Bank link created successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "banks/create-link",
+            "v1/banks/create-link",
             method="GET",
             params={
                 "entityId": entity_id,
@@ -189,9 +181,9 @@ class AsyncRawBanksClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    LinkTokenResponse,
+                    GetV1BanksCreateLinkResponse,
                     parse_obj_as(
-                        type_=LinkTokenResponse,  # type: ignore
+                        type_=GetV1BanksCreateLinkResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -221,48 +213,43 @@ class AsyncRawBanksClient:
             raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
-    async def add_bank_account(
+    async def add_bank_accounts(
         self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[BankAccountResponse]:
+    ) -> AsyncHttpResponse[PutV1BanksAccountsResponse]:
         """
-        Add a bank account using public token from Plaid
+        Adds new bank accounts using a Plaid public token
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to add the bank accounts for
 
         public_token : str
+            The Plaid public token received from the Plaid Link onSuccess callback
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[BankAccountResponse]
-            Bank account added
+        AsyncHttpResponse[PutV1BanksAccountsResponse]
+            Bank accounts added successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "banks/accounts",
+            "v1/banks/accounts",
             method="PUT",
             params={
                 "entityId": entity_id,
-            },
-            json={
                 "public_token": public_token,
             },
-            headers={
-                "content-type": "application/json",
-            },
             request_options=request_options,
-            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    BankAccountResponse,
+                    PutV1BanksAccountsResponse,
                     parse_obj_as(
-                        type_=BankAccountResponse,  # type: ignore
+                        type_=PutV1BanksAccountsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

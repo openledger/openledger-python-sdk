@@ -5,16 +5,20 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
-from ..types.transaction import Transaction
 from .raw_client import AsyncRawTransactionsClient, RawTransactionsClient
-from .types.delete_transactions_response import DeleteTransactionsResponse
-from .types.get_transactions_chat_response import GetTransactionsChatResponse
-from .types.post_transactions_categorize_response import PostTransactionsCategorizeResponse
-from .types.post_transactions_response import PostTransactionsResponse
-from .types.post_transactions_search_response import PostTransactionsSearchResponse
-from .types.put_transactions_response import PutTransactionsResponse
-from .types.transaction_request_status import TransactionRequestStatus
-from .types.transaction_search_request_filters import TransactionSearchRequestFilters
+from .types.delete_v1transactions_response import DeleteV1TransactionsResponse
+from .types.get_v1transactions_by_month_response_item import GetV1TransactionsByMonthResponseItem
+from .types.get_v1transactions_chat_response import GetV1TransactionsChatResponse
+from .types.get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
+from .types.get_v1transactions_response import GetV1TransactionsResponse
+from .types.post_v1transactions_approve_request import PostV1TransactionsApproveRequest
+from .types.post_v1transactions_approve_response import PostV1TransactionsApproveResponse
+from .types.post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
+from .types.post_v1transactions_edit_response import PostV1TransactionsEditResponse
+from .types.post_v1transactions_request_status import PostV1TransactionsRequestStatus
+from .types.post_v1transactions_response import PostV1TransactionsResponse
+from .types.post_v1transactions_search_request_filters import PostV1TransactionsSearchRequestFilters
+from .types.post_v1transactions_search_response import PostV1TransactionsSearchResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -35,235 +39,297 @@ class TransactionsClient:
         """
         return self._raw_client
 
-    def get_transactions_by_company(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
+    def get_transactions_by_entity(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsResponse:
         """
-        Get all transactions for a company with optional filters
+        Retrieves all transactions for a specific entity with pagination
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get transactions for
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of transactions per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        typing.List[Transaction]
-            List of transactions
+        GetV1TransactionsResponse
+            Transactions retrieved successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.get_transactions_by_company(entity_id='entityId', )
+        client.transactions.get_transactions_by_entity(entity_id='entityId', )
         """
-        _response = self._raw_client.get_transactions_by_company(entity_id=entity_id, request_options=request_options)
+        _response = self._raw_client.get_transactions_by_entity(
+            entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
+        )
         return _response.data
 
-    def create_transaction(
+    def create_a_new_transaction(
         self,
         *,
         entity_id: str,
         amount: float,
-        description: str,
         debit_account_id: str,
         credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionRequestStatus] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        status: typing.Optional[PostV1TransactionsRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsResponse:
+    ) -> PostV1TransactionsResponse:
         """
-        Create a new transaction
+        Creates a new transaction for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the transaction for
 
         amount : float
-
-        description : str
+            The amount of the transaction
 
         debit_account_id : str
+            ID of the account to debit
 
         credit_account_id : str
+            ID of the account to credit
 
         date : typing.Optional[dt.datetime]
+            When the transaction occurred (defaults to current time if not provided)
 
         currency : typing.Optional[str]
+            The currency of the transaction
 
-        status : typing.Optional[TransactionRequestStatus]
+        description : typing.Optional[str]
+            Description of the transaction
+
+        status : typing.Optional[PostV1TransactionsRequestStatus]
+            Status of the transaction
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            Additional transaction metadata
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsResponse
-            Transaction created
+        PostV1TransactionsResponse
+            Transaction created successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.create_transaction(entity_id='entityId', amount=1.1, description='description', debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
+        client.transactions.create_a_new_transaction(entity_id='entityId', amount=1.1, debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
         """
-        _response = self._raw_client.create_transaction(
+        _response = self._raw_client.create_a_new_transaction(
             entity_id=entity_id,
             amount=amount,
-            description=description,
             debit_account_id=debit_account_id,
             credit_account_id=credit_account_id,
             date=date,
             currency=currency,
+            description=description,
             status=status,
             metadata=metadata,
             request_options=request_options,
         )
         return _response.data
 
-    def approve_transaction(
+    def delete_a_transaction(
         self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PutTransactionsResponse:
+    ) -> DeleteV1TransactionsResponse:
         """
-        Approve a transaction
+        Deletes an existing transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to delete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PutTransactionsResponse
-            Transaction approved
+        DeleteV1TransactionsResponse
+            Transaction deleted successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.approve_transaction(entity_id='entityId', transaction_id='transactionId', )
+        client.transactions.delete_a_transaction(entity_id='entityId', transaction_id='transactionId', )
         """
-        _response = self._raw_client.approve_transaction(
+        _response = self._raw_client.delete_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, request_options=request_options
         )
         return _response.data
 
-    def delete_transaction(
-        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> DeleteTransactionsResponse:
+    def edit_a_transaction(
+        self,
+        *,
+        id: str,
+        debit_account_id: typing.Optional[str] = OMIT,
+        credit_account_id: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PostV1TransactionsEditResponse:
         """
-        Delete a transaction
+        Edit an existing transaction by updating its accounts and/or description
 
         Parameters
         ----------
-        entity_id : str
-            entity ID
+        id : str
+            The ID of the transaction to edit
 
-        transaction_id : str
-            Transaction ID
+        debit_account_id : typing.Optional[str]
+            ID of the account to debit (optional if credit_account_id is provided)
+
+        credit_account_id : typing.Optional[str]
+            ID of the account to credit (optional if debit_account_id is provided)
+
+        description : typing.Optional[str]
+            New description for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        DeleteTransactionsResponse
-            Transaction deleted
+        PostV1TransactionsEditResponse
+            Transaction edited successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.delete_transaction(entity_id='entityId', transaction_id='transactionId', )
+        client.transactions.edit_a_transaction(id='id', )
         """
-        _response = self._raw_client.delete_transaction(
-            entity_id=entity_id, transaction_id=transaction_id, request_options=request_options
+        _response = self._raw_client.edit_a_transaction(
+            id=id,
+            debit_account_id=debit_account_id,
+            credit_account_id=credit_account_id,
+            description=description,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def approve_one_or_multiple_transactions(
+        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> PostV1TransactionsApproveResponse:
+        """
+        Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
+
+        Parameters
+        ----------
+        request : PostV1TransactionsApproveRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        PostV1TransactionsApproveResponse
+            Transactions approved successfully
+
+        Examples
+        --------
+        from openledger import OpenLedgerClient
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
+        """
+        _response = self._raw_client.approve_one_or_multiple_transactions(
+            request=request, request_options=request_options
         )
         return _response.data
 
     def get_transactions_by_month(
-        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.List[GetV1TransactionsByMonthResponseItem]:
         """
-        Get transactions for a specified month
+        Retrieve monthly transaction summaries for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
-
-        month : str
-            Month (1-12)
-
-        year : str
-            Year (YYYY)
+            The ID of the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        None
+        typing.List[GetV1TransactionsByMonthResponseItem]
+            List of monthly transaction summaries
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.get_transactions_by_month(entity_id='entityId', month='month', year='year', )
+        client.transactions.get_transactions_by_month(entity_id='entityId', )
         """
-        _response = self._raw_client.get_transactions_by_month(
-            entity_id=entity_id, month=month, year=year, request_options=request_options
-        )
+        _response = self._raw_client.get_transactions_by_month(entity_id=entity_id, request_options=request_options)
         return _response.data
 
-    def categorize_transaction(
+    def categorize_a_transaction(
         self,
         *,
         entity_id: str,
         transaction_id: str,
         category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsCategorizeResponse:
+    ) -> PostV1TransactionsCategorizeResponse:
         """
         Assign a category to a transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to categorize
 
         category_id : str
+            The ID of the category to assign
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsCategorizeResponse
-            Transaction categorized
+        PostV1TransactionsCategorizeResponse
+            Transaction categorized successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.categorize_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
+        client.transactions.categorize_a_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
         """
-        _response = self._raw_client.categorize_transaction(
+        _response = self._raw_client.categorize_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, category_id=category_id, request_options=request_options
         )
         return _response.data
@@ -273,34 +339,37 @@ class TransactionsClient:
         *,
         entity_id: str,
         query: typing.Optional[str] = OMIT,
-        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        filters: typing.Optional[PostV1TransactionsSearchRequestFilters] = OMIT,
         page: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsSearchResponse:
+    ) -> PostV1TransactionsSearchResponse:
         """
-        Search for transactions with various filters
+        Search for transactions using various filters and text search
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to search transactions for
 
         query : typing.Optional[str]
+            Text to search in transaction descriptions
 
-        filters : typing.Optional[TransactionSearchRequestFilters]
+        filters : typing.Optional[PostV1TransactionsSearchRequestFilters]
 
         page : typing.Optional[int]
+            Page number for pagination
 
         limit : typing.Optional[int]
+            Number of items per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsSearchResponse
-            Search results
+        PostV1TransactionsSearchResponse
+            Search results retrieved successfully
 
         Examples
         --------
@@ -314,26 +383,46 @@ class TransactionsClient:
         return _response.data
 
     def chat_with_transactions(
-        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetTransactionsChatResponse:
+        self,
+        *,
+        entity_id: str,
+        prompt: str,
+        history: typing.Optional[str] = None,
+        context_data: typing.Optional[str] = None,
+        custom_prompt: typing.Optional[str] = None,
+        stream: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsChatResponse:
         """
-        Natural language interaction with transactions
+        Interact with transactions using natural language
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to chat about transactions for
 
         prompt : str
-            Natural language prompt
+            The natural language prompt
+
+        history : typing.Optional[str]
+            JSON string of conversation history
+
+        context_data : typing.Optional[str]
+            JSON string of additional context data
+
+        custom_prompt : typing.Optional[str]
+            Custom prompt to use instead of the main prompt
+
+        stream : typing.Optional[str]
+            Whether to stream the response
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetTransactionsChatResponse
-            AI response
+        GetV1TransactionsChatResponse
+            Chat response
 
         Examples
         --------
@@ -342,7 +431,54 @@ class TransactionsClient:
         client.transactions.chat_with_transactions(entity_id='entityId', prompt='prompt', )
         """
         _response = self._raw_client.chat_with_transactions(
-            entity_id=entity_id, prompt=prompt, request_options=request_options
+            entity_id=entity_id,
+            prompt=prompt,
+            history=history,
+            context_data=context_data,
+            custom_prompt=custom_prompt,
+            stream=stream,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def get_entity_counterparties(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsCounterpartiesResponse:
+        """
+        Get all counterparties for an entity with their transaction history and aggregated data
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of counterparties per page
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetV1TransactionsCounterpartiesResponse
+            List of counterparties with their transaction history
+
+        Examples
+        --------
+        from openledger import OpenLedgerClient
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.transactions.get_entity_counterparties(entity_id='entityId', )
+        """
+        _response = self._raw_client.get_entity_counterparties(
+            entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
         )
         return _response.data
 
@@ -362,24 +498,35 @@ class AsyncTransactionsClient:
         """
         return self._raw_client
 
-    async def get_transactions_by_company(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[Transaction]:
+    async def get_transactions_by_entity(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsResponse:
         """
-        Get all transactions for a company with optional filters
+        Retrieves all transactions for a specific entity with pagination
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to get transactions for
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of transactions per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        typing.List[Transaction]
-            List of transactions
+        GetV1TransactionsResponse
+            Transactions retrieved successfully
 
         Examples
         --------
@@ -387,59 +534,67 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.get_transactions_by_company(entity_id='entityId', )
+            await client.transactions.get_transactions_by_entity(entity_id='entityId', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_transactions_by_company(
-            entity_id=entity_id, request_options=request_options
+        _response = await self._raw_client.get_transactions_by_entity(
+            entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
         )
         return _response.data
 
-    async def create_transaction(
+    async def create_a_new_transaction(
         self,
         *,
         entity_id: str,
         amount: float,
-        description: str,
         debit_account_id: str,
         credit_account_id: str,
         date: typing.Optional[dt.datetime] = OMIT,
         currency: typing.Optional[str] = OMIT,
-        status: typing.Optional[TransactionRequestStatus] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        status: typing.Optional[PostV1TransactionsRequestStatus] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsResponse:
+    ) -> PostV1TransactionsResponse:
         """
-        Create a new transaction
+        Creates a new transaction for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to create the transaction for
 
         amount : float
-
-        description : str
+            The amount of the transaction
 
         debit_account_id : str
+            ID of the account to debit
 
         credit_account_id : str
+            ID of the account to credit
 
         date : typing.Optional[dt.datetime]
+            When the transaction occurred (defaults to current time if not provided)
 
         currency : typing.Optional[str]
+            The currency of the transaction
 
-        status : typing.Optional[TransactionRequestStatus]
+        description : typing.Optional[str]
+            Description of the transaction
+
+        status : typing.Optional[PostV1TransactionsRequestStatus]
+            Status of the transaction
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            Additional transaction metadata
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsResponse
-            Transaction created
+        PostV1TransactionsResponse
+            Transaction created successfully
 
         Examples
         --------
@@ -447,43 +602,44 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.create_transaction(entity_id='entityId', amount=1.1, description='description', debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
+            await client.transactions.create_a_new_transaction(entity_id='entityId', amount=1.1, debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.create_transaction(
+        _response = await self._raw_client.create_a_new_transaction(
             entity_id=entity_id,
             amount=amount,
-            description=description,
             debit_account_id=debit_account_id,
             credit_account_id=credit_account_id,
             date=date,
             currency=currency,
+            description=description,
             status=status,
             metadata=metadata,
             request_options=request_options,
         )
         return _response.data
 
-    async def approve_transaction(
+    async def delete_a_transaction(
         self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PutTransactionsResponse:
+    ) -> DeleteV1TransactionsResponse:
         """
-        Approve a transaction
+        Deletes an existing transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to delete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PutTransactionsResponse
-            Transaction approved
+        DeleteV1TransactionsResponse
+            Transaction deleted successfully
 
         Examples
         --------
@@ -491,35 +647,47 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.approve_transaction(entity_id='entityId', transaction_id='transactionId', )
+            await client.transactions.delete_a_transaction(entity_id='entityId', transaction_id='transactionId', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.approve_transaction(
+        _response = await self._raw_client.delete_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, request_options=request_options
         )
         return _response.data
 
-    async def delete_transaction(
-        self, *, entity_id: str, transaction_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> DeleteTransactionsResponse:
+    async def edit_a_transaction(
+        self,
+        *,
+        id: str,
+        debit_account_id: typing.Optional[str] = OMIT,
+        credit_account_id: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PostV1TransactionsEditResponse:
         """
-        Delete a transaction
+        Edit an existing transaction by updating its accounts and/or description
 
         Parameters
         ----------
-        entity_id : str
-            entity ID
+        id : str
+            The ID of the transaction to edit
 
-        transaction_id : str
-            Transaction ID
+        debit_account_id : typing.Optional[str]
+            ID of the account to debit (optional if credit_account_id is provided)
+
+        credit_account_id : typing.Optional[str]
+            ID of the account to credit (optional if debit_account_id is provided)
+
+        description : typing.Optional[str]
+            New description for the transaction
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        DeleteTransactionsResponse
-            Transaction deleted
+        PostV1TransactionsEditResponse
+            Transaction edited successfully
 
         Examples
         --------
@@ -527,37 +695,68 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.delete_transaction(entity_id='entityId', transaction_id='transactionId', )
+            await client.transactions.edit_a_transaction(id='id', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete_transaction(
-            entity_id=entity_id, transaction_id=transaction_id, request_options=request_options
+        _response = await self._raw_client.edit_a_transaction(
+            id=id,
+            debit_account_id=debit_account_id,
+            credit_account_id=credit_account_id,
+            description=description,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def approve_one_or_multiple_transactions(
+        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> PostV1TransactionsApproveResponse:
+        """
+        Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
+
+        Parameters
+        ----------
+        request : PostV1TransactionsApproveRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        PostV1TransactionsApproveResponse
+            Transactions approved successfully
+
+        Examples
+        --------
+        from openledger import AsyncOpenLedgerClient
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+        async def main() -> None:
+            await client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.approve_one_or_multiple_transactions(
+            request=request, request_options=request_options
         )
         return _response.data
 
     async def get_transactions_by_month(
-        self, *, entity_id: str, month: str, year: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.List[GetV1TransactionsByMonthResponseItem]:
         """
-        Get transactions for a specified month
+        Retrieve monthly transaction summaries for an entity
 
         Parameters
         ----------
         entity_id : str
-            entity ID
-
-        month : str
-            Month (1-12)
-
-        year : str
-            Year (YYYY)
+            The ID of the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        None
+        typing.List[GetV1TransactionsByMonthResponseItem]
+            List of monthly transaction summaries
 
         Examples
         --------
@@ -565,41 +764,43 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.get_transactions_by_month(entity_id='entityId', month='month', year='year', )
+            await client.transactions.get_transactions_by_month(entity_id='entityId', )
         asyncio.run(main())
         """
         _response = await self._raw_client.get_transactions_by_month(
-            entity_id=entity_id, month=month, year=year, request_options=request_options
+            entity_id=entity_id, request_options=request_options
         )
         return _response.data
 
-    async def categorize_transaction(
+    async def categorize_a_transaction(
         self,
         *,
         entity_id: str,
         transaction_id: str,
         category_id: str,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsCategorizeResponse:
+    ) -> PostV1TransactionsCategorizeResponse:
         """
         Assign a category to a transaction
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity that owns the transaction
 
         transaction_id : str
+            The ID of the transaction to categorize
 
         category_id : str
+            The ID of the category to assign
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsCategorizeResponse
-            Transaction categorized
+        PostV1TransactionsCategorizeResponse
+            Transaction categorized successfully
 
         Examples
         --------
@@ -607,10 +808,10 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.categorize_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
+            await client.transactions.categorize_a_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.categorize_transaction(
+        _response = await self._raw_client.categorize_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, category_id=category_id, request_options=request_options
         )
         return _response.data
@@ -620,34 +821,37 @@ class AsyncTransactionsClient:
         *,
         entity_id: str,
         query: typing.Optional[str] = OMIT,
-        filters: typing.Optional[TransactionSearchRequestFilters] = OMIT,
+        filters: typing.Optional[PostV1TransactionsSearchRequestFilters] = OMIT,
         page: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostTransactionsSearchResponse:
+    ) -> PostV1TransactionsSearchResponse:
         """
-        Search for transactions with various filters
+        Search for transactions using various filters and text search
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to search transactions for
 
         query : typing.Optional[str]
+            Text to search in transaction descriptions
 
-        filters : typing.Optional[TransactionSearchRequestFilters]
+        filters : typing.Optional[PostV1TransactionsSearchRequestFilters]
 
         page : typing.Optional[int]
+            Page number for pagination
 
         limit : typing.Optional[int]
+            Number of items per page
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostTransactionsSearchResponse
-            Search results
+        PostV1TransactionsSearchResponse
+            Search results retrieved successfully
 
         Examples
         --------
@@ -664,26 +868,46 @@ class AsyncTransactionsClient:
         return _response.data
 
     async def chat_with_transactions(
-        self, *, entity_id: str, prompt: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetTransactionsChatResponse:
+        self,
+        *,
+        entity_id: str,
+        prompt: str,
+        history: typing.Optional[str] = None,
+        context_data: typing.Optional[str] = None,
+        custom_prompt: typing.Optional[str] = None,
+        stream: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsChatResponse:
         """
-        Natural language interaction with transactions
+        Interact with transactions using natural language
 
         Parameters
         ----------
         entity_id : str
-            entity ID
+            The ID of the entity to chat about transactions for
 
         prompt : str
-            Natural language prompt
+            The natural language prompt
+
+        history : typing.Optional[str]
+            JSON string of conversation history
+
+        context_data : typing.Optional[str]
+            JSON string of additional context data
+
+        custom_prompt : typing.Optional[str]
+            Custom prompt to use instead of the main prompt
+
+        stream : typing.Optional[str]
+            Whether to stream the response
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetTransactionsChatResponse
-            AI response
+        GetV1TransactionsChatResponse
+            Chat response
 
         Examples
         --------
@@ -695,6 +919,56 @@ class AsyncTransactionsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.chat_with_transactions(
-            entity_id=entity_id, prompt=prompt, request_options=request_options
+            entity_id=entity_id,
+            prompt=prompt,
+            history=history,
+            context_data=context_data,
+            custom_prompt=custom_prompt,
+            stream=stream,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def get_entity_counterparties(
+        self,
+        *,
+        entity_id: str,
+        cursor: typing.Optional[str] = None,
+        page_size: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1TransactionsCounterpartiesResponse:
+        """
+        Get all counterparties for an entity with their transaction history and aggregated data
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        page_size : typing.Optional[int]
+            Number of counterparties per page
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetV1TransactionsCounterpartiesResponse
+            List of counterparties with their transaction history
+
+        Examples
+        --------
+        from openledger import AsyncOpenLedgerClient
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+        async def main() -> None:
+            await client.transactions.get_entity_counterparties(entity_id='entityId', )
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_entity_counterparties(
+            entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
         )
         return _response.data
