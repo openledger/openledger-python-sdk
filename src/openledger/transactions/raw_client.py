@@ -18,14 +18,14 @@ from .types.get_v1transactions_by_month_response_item import GetV1TransactionsBy
 from .types.get_v1transactions_chat_response import GetV1TransactionsChatResponse
 from .types.get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
 from .types.get_v1transactions_response import GetV1TransactionsResponse
-from .types.post_v1transactions_approve_request import PostV1TransactionsApproveRequest
-from .types.post_v1transactions_approve_response import PostV1TransactionsApproveResponse
 from .types.post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
 from .types.post_v1transactions_edit_response import PostV1TransactionsEditResponse
 from .types.post_v1transactions_request_status import PostV1TransactionsRequestStatus
 from .types.post_v1transactions_response import PostV1TransactionsResponse
 from .types.post_v1transactions_search_request_filters import PostV1TransactionsSearchRequestFilters
 from .types.post_v1transactions_search_response import PostV1TransactionsSearchResponse
+from .types.put_v1transactions_approve_request_body import PutV1TransactionsApproveRequestBody
+from .types.put_v1transactions_approve_response import PutV1TransactionsApproveResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -402,28 +402,38 @@ class RawTransactionsClient:
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     def approve_one_or_multiple_transactions(
-        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[PostV1TransactionsApproveResponse]:
+        self,
+        *,
+        entity_id: str,
+        request: PutV1TransactionsApproveRequestBody,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[PutV1TransactionsApproveResponse]:
         """
         Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
 
         Parameters
         ----------
-        request : PostV1TransactionsApproveRequest
+        entity_id : str
+            The ID of the entity that owns the transactions
+
+        request : PutV1TransactionsApproveRequestBody
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostV1TransactionsApproveResponse]
+        HttpResponse[PutV1TransactionsApproveResponse]
             Transactions approved successfully
         """
         _response = self._client_wrapper.httpx_client.request(
             "v1/transactions/approve",
-            method="POST",
+            method="PUT",
+            params={
+                "entityId": entity_id,
+            },
             json=convert_and_respect_annotation_metadata(
-                object_=request, annotation=PostV1TransactionsApproveRequest, direction="write"
+                object_=request, annotation=PutV1TransactionsApproveRequestBody, direction="write"
             ),
             headers={
                 "content-type": "application/json",
@@ -434,9 +444,9 @@ class RawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1TransactionsApproveResponse,
+                    PutV1TransactionsApproveResponse,
                     parse_obj_as(
-                        type_=PostV1TransactionsApproveResponse,  # type: ignore
+                        type_=PutV1TransactionsApproveResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1258,28 +1268,38 @@ class AsyncRawTransactionsClient:
         raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
     async def approve_one_or_multiple_transactions(
-        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[PostV1TransactionsApproveResponse]:
+        self,
+        *,
+        entity_id: str,
+        request: PutV1TransactionsApproveRequestBody,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[PutV1TransactionsApproveResponse]:
         """
         Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
 
         Parameters
         ----------
-        request : PostV1TransactionsApproveRequest
+        entity_id : str
+            The ID of the entity that owns the transactions
+
+        request : PutV1TransactionsApproveRequestBody
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostV1TransactionsApproveResponse]
+        AsyncHttpResponse[PutV1TransactionsApproveResponse]
             Transactions approved successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v1/transactions/approve",
-            method="POST",
+            method="PUT",
+            params={
+                "entityId": entity_id,
+            },
             json=convert_and_respect_annotation_metadata(
-                object_=request, annotation=PostV1TransactionsApproveRequest, direction="write"
+                object_=request, annotation=PutV1TransactionsApproveRequestBody, direction="write"
             ),
             headers={
                 "content-type": "application/json",
@@ -1290,9 +1310,9 @@ class AsyncRawTransactionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1TransactionsApproveResponse,
+                    PutV1TransactionsApproveResponse,
                     parse_obj_as(
-                        type_=PostV1TransactionsApproveResponse,  # type: ignore
+                        type_=PutV1TransactionsApproveResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

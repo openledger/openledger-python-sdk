@@ -6,11 +6,11 @@ import pydantic
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class PostV1TransactionsApproveResponseTransactionTransaction(UniversalBaseModel):
-    id: typing.Optional[str] = None
-    amount: typing.Optional[float] = None
-    description: typing.Optional[str] = None
-    status: typing.Optional[str] = None
+class PutV1TransactionsApproveRequestBodyId(UniversalBaseModel):
+    id: str = pydantic.Field()
+    """
+    The ID of the transaction to approve
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

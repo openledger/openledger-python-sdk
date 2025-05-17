@@ -6,21 +6,8 @@ import pydantic
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class PostV1TransactionsApproveRequestCreditAccountId(UniversalBaseModel):
-    id: str = pydantic.Field()
-    """
-    The ID of the transaction to approve
-    """
-
-    debit_account_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the account to debit (optional)
-    """
-
-    credit_account_id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    ID of the account to credit (optional)
-    """
+class PutV1TransactionsApproveRequestBodyItem(UniversalBaseModel):
+    id: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

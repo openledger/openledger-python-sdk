@@ -21,18 +21,6 @@ from .get_v1transactions_response_transactions_item_debit_account import (
     GetV1TransactionsResponseTransactionsItemDebitAccount,
 )
 from .get_v1transactions_response_transactions_item_status import GetV1TransactionsResponseTransactionsItemStatus
-from .post_v1transactions_approve_request import PostV1TransactionsApproveRequest
-from .post_v1transactions_approve_request_credit_account_id import PostV1TransactionsApproveRequestCreditAccountId
-from .post_v1transactions_approve_request_transaction_ids import PostV1TransactionsApproveRequestTransactionIds
-from .post_v1transactions_approve_response import PostV1TransactionsApproveResponse
-from .post_v1transactions_approve_response_results import PostV1TransactionsApproveResponseResults
-from .post_v1transactions_approve_response_results_results_item import (
-    PostV1TransactionsApproveResponseResultsResultsItem,
-)
-from .post_v1transactions_approve_response_transaction import PostV1TransactionsApproveResponseTransaction
-from .post_v1transactions_approve_response_transaction_transaction import (
-    PostV1TransactionsApproveResponseTransactionTransaction,
-)
 from .post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
 from .post_v1transactions_categorize_response_transaction import PostV1TransactionsCategorizeResponseTransaction
 from .post_v1transactions_categorize_response_transaction_metadata import (
@@ -54,6 +42,15 @@ from .post_v1transactions_search_request_filters import PostV1TransactionsSearch
 from .post_v1transactions_search_response import PostV1TransactionsSearchResponse
 from .post_v1transactions_search_response_pagination import PostV1TransactionsSearchResponsePagination
 from .post_v1transactions_search_response_transactions_item import PostV1TransactionsSearchResponseTransactionsItem
+from .put_v1transactions_approve_request_body import PutV1TransactionsApproveRequestBody
+from .put_v1transactions_approve_request_body_id import PutV1TransactionsApproveRequestBodyId
+from .put_v1transactions_approve_request_body_item import PutV1TransactionsApproveRequestBodyItem
+from .put_v1transactions_approve_request_body_transaction_ids import PutV1TransactionsApproveRequestBodyTransactionIds
+from .put_v1transactions_approve_response import PutV1TransactionsApproveResponse
+from .put_v1transactions_approve_response_results_item import PutV1TransactionsApproveResponseResultsItem
+from .put_v1transactions_approve_response_results_item_transaction import (
+    PutV1TransactionsApproveResponseResultsItemTransaction,
+)
 
 __all__ = [
     "DeleteV1TransactionsResponse",
@@ -67,14 +64,6 @@ __all__ = [
     "GetV1TransactionsResponseTransactionsItemCreditAccount",
     "GetV1TransactionsResponseTransactionsItemDebitAccount",
     "GetV1TransactionsResponseTransactionsItemStatus",
-    "PostV1TransactionsApproveRequest",
-    "PostV1TransactionsApproveRequestCreditAccountId",
-    "PostV1TransactionsApproveRequestTransactionIds",
-    "PostV1TransactionsApproveResponse",
-    "PostV1TransactionsApproveResponseResults",
-    "PostV1TransactionsApproveResponseResultsResultsItem",
-    "PostV1TransactionsApproveResponseTransaction",
-    "PostV1TransactionsApproveResponseTransactionTransaction",
     "PostV1TransactionsCategorizeResponse",
     "PostV1TransactionsCategorizeResponseTransaction",
     "PostV1TransactionsCategorizeResponseTransactionMetadata",
@@ -90,4 +79,11 @@ __all__ = [
     "PostV1TransactionsSearchResponse",
     "PostV1TransactionsSearchResponsePagination",
     "PostV1TransactionsSearchResponseTransactionsItem",
+    "PutV1TransactionsApproveRequestBody",
+    "PutV1TransactionsApproveRequestBodyId",
+    "PutV1TransactionsApproveRequestBodyItem",
+    "PutV1TransactionsApproveRequestBodyTransactionIds",
+    "PutV1TransactionsApproveResponse",
+    "PutV1TransactionsApproveResponseResultsItem",
+    "PutV1TransactionsApproveResponseResultsItemTransaction",
 ]

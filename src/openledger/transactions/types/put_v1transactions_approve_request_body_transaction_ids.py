@@ -6,21 +6,15 @@ import pydantic
 import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ...core.serialization import FieldMetadata
-from .post_v1transactions_approve_response_results_results_item import (
-    PostV1TransactionsApproveResponseResultsResultsItem,
-)
 
 
-class PostV1TransactionsApproveResponseResults(UniversalBaseModel):
-    success: typing.Optional[bool] = None
-    total_processed: typing_extensions.Annotated[typing.Optional[int], FieldMetadata(alias="totalProcessed")] = (
-        pydantic.Field(default=None)
+class PutV1TransactionsApproveRequestBodyTransactionIds(UniversalBaseModel):
+    transaction_ids: typing_extensions.Annotated[typing.List[str], FieldMetadata(alias="transactionIds")] = (
+        pydantic.Field()
     )
     """
-    Total number of transactions processed
+    Array of transaction IDs to approve in batch
     """
-
-    results: typing.Optional[typing.List[PostV1TransactionsApproveResponseResultsResultsItem]] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

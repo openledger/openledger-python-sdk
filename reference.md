@@ -1750,7 +1750,7 @@ Approve pending transactions by posting them to the ledger. Supports both single
 ```python
 from openledger import OpenLedgerClient
 client = OpenLedgerClient(token="YOUR_TOKEN", )
-client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
+client.transactions.approve_one_or_multiple_transactions(entity_id='entityId', request='tx_1234567890abcdef', )
 
 ```
 </dd>
@@ -1766,7 +1766,15 @@ client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
 <dl>
 <dd>
 
-**request:** `PostV1TransactionsApproveRequest` 
+**entity_id:** `str` — The ID of the entity that owns the transactions
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `PutV1TransactionsApproveRequestBody` 
     
 </dd>
 </dl>

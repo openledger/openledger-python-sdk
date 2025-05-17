@@ -4,9 +4,12 @@ import typing
 
 import pydantic
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .put_v1transactions_approve_response_results_item_transaction import (
+    PutV1TransactionsApproveResponseResultsItemTransaction,
+)
 
 
-class PostV1TransactionsApproveResponseResultsResultsItem(UniversalBaseModel):
+class PutV1TransactionsApproveResponseResultsItem(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Transaction ID
@@ -17,7 +20,7 @@ class PostV1TransactionsApproveResponseResultsResultsItem(UniversalBaseModel):
     Whether this transaction was approved successfully
     """
 
-    transaction: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    transaction: typing.Optional[PutV1TransactionsApproveResponseResultsItemTransaction] = pydantic.Field(default=None)
     """
     The updated transaction data
     """

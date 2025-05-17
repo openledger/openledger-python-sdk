@@ -6,19 +6,19 @@ import pydantic
 import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ...core.serialization import FieldMetadata
-from .post_v1transactions_approve_response_transaction_transaction import (
-    PostV1TransactionsApproveResponseTransactionTransaction,
-)
+from .put_v1transactions_approve_response_results_item import PutV1TransactionsApproveResponseResultsItem
 
 
-class PostV1TransactionsApproveResponseTransaction(UniversalBaseModel):
-    transaction: typing.Optional[PostV1TransactionsApproveResponseTransactionTransaction] = None
-    transfer_result: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="transferResult")
-    ] = pydantic.Field(default=None)
+class PutV1TransactionsApproveResponse(UniversalBaseModel):
+    success: typing.Optional[bool] = None
+    total_processed: typing_extensions.Annotated[typing.Optional[int], FieldMetadata(alias="totalProcessed")] = (
+        pydantic.Field(default=None)
+    )
     """
-    Result of the transfer operation
+    Total number of transactions processed
     """
+
+    results: typing.Optional[typing.List[PutV1TransactionsApproveResponseResultsItem]] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

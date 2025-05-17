@@ -11,14 +11,14 @@ from .types.get_v1transactions_by_month_response_item import GetV1TransactionsBy
 from .types.get_v1transactions_chat_response import GetV1TransactionsChatResponse
 from .types.get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
 from .types.get_v1transactions_response import GetV1TransactionsResponse
-from .types.post_v1transactions_approve_request import PostV1TransactionsApproveRequest
-from .types.post_v1transactions_approve_response import PostV1TransactionsApproveResponse
 from .types.post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
 from .types.post_v1transactions_edit_response import PostV1TransactionsEditResponse
 from .types.post_v1transactions_request_status import PostV1TransactionsRequestStatus
 from .types.post_v1transactions_response import PostV1TransactionsResponse
 from .types.post_v1transactions_search_request_filters import PostV1TransactionsSearchRequestFilters
 from .types.post_v1transactions_search_response import PostV1TransactionsSearchResponse
+from .types.put_v1transactions_approve_request_body import PutV1TransactionsApproveRequestBody
+from .types.put_v1transactions_approve_response import PutV1TransactionsApproveResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -237,31 +237,38 @@ class TransactionsClient:
         return _response.data
 
     def approve_one_or_multiple_transactions(
-        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1TransactionsApproveResponse:
+        self,
+        *,
+        entity_id: str,
+        request: PutV1TransactionsApproveRequestBody,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PutV1TransactionsApproveResponse:
         """
         Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
 
         Parameters
         ----------
-        request : PostV1TransactionsApproveRequest
+        entity_id : str
+            The ID of the entity that owns the transactions
+
+        request : PutV1TransactionsApproveRequestBody
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1TransactionsApproveResponse
+        PutV1TransactionsApproveResponse
             Transactions approved successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
         client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
+        client.transactions.approve_one_or_multiple_transactions(entity_id='entityId', request='tx_1234567890abcdef', )
         """
         _response = self._raw_client.approve_one_or_multiple_transactions(
-            request=request, request_options=request_options
+            entity_id=entity_id, request=request, request_options=request_options
         )
         return _response.data
 
@@ -708,21 +715,28 @@ class AsyncTransactionsClient:
         return _response.data
 
     async def approve_one_or_multiple_transactions(
-        self, *, request: PostV1TransactionsApproveRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1TransactionsApproveResponse:
+        self,
+        *,
+        entity_id: str,
+        request: PutV1TransactionsApproveRequestBody,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> PutV1TransactionsApproveResponse:
         """
         Approve pending transactions by posting them to the ledger. Supports both single and batch transaction approval.
 
         Parameters
         ----------
-        request : PostV1TransactionsApproveRequest
+        entity_id : str
+            The ID of the entity that owns the transactions
+
+        request : PutV1TransactionsApproveRequestBody
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1TransactionsApproveResponse
+        PutV1TransactionsApproveResponse
             Transactions approved successfully
 
         Examples
@@ -731,11 +745,11 @@ class AsyncTransactionsClient:
         import asyncio
         client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.transactions.approve_one_or_multiple_transactions(request='tx_123456', )
+            await client.transactions.approve_one_or_multiple_transactions(entity_id='entityId', request='tx_1234567890abcdef', )
         asyncio.run(main())
         """
         _response = await self._raw_client.approve_one_or_multiple_transactions(
-            request=request, request_options=request_options
+            entity_id=entity_id, request=request, request_options=request_options
         )
         return _response.data
 
