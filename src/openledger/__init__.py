@@ -28,6 +28,8 @@ from .client import AsyncOpenLedgerClient, OpenLedgerClient
 from .developers import PostV1DevelopersAuthGenerateTokenResponse
 from .entities import (
     DeleteV1EntitiesResponse,
+    GetV1EntitiesDeveloperEntitiesResponse,
+    GetV1EntitiesDeveloperEntitiesResponseEntitiesItem,
     GetV1EntitiesResponse,
     GetV1EntitiesResponseEntity,
     GetV1EntitiesResponseEntityAddress,
@@ -127,6 +129,8 @@ __all__ = [
     "GetV1CategoriesResponse",
     "GetV1CategoriesResponseCategoriesItem",
     "GetV1CategoriesResponseCategoriesItemType",
+    "GetV1EntitiesDeveloperEntitiesResponse",
+    "GetV1EntitiesDeveloperEntitiesResponseEntitiesItem",
     "GetV1EntitiesResponse",
     "GetV1EntitiesResponseEntity",
     "GetV1EntitiesResponseEntityAddress",

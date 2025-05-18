@@ -852,6 +852,87 @@ client.entities.delete_an_entity(entity_id='entityId', )
 </dl>
 </details>
 
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">get_entities_by_developer_id</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves all entities associated with a specific developer
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.entities.get_entities_by_developer_id(developer_id='developerId', )
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**developer_id:** `str` — ID of the developer whose entities to retrieve
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_size:** `typing.Optional[int]` — Number of entities to return per page
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**cursor:** `typing.Optional[str]` — Cursor for pagination
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Integrations
 <details><summary><code>client.integrations.<a href="src/openledger/integrations/client.py">get_integration_status</a>(...)</code></summary>
 <dl>

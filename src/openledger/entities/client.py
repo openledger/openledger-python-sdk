@@ -7,6 +7,7 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from .raw_client import AsyncRawEntitiesClient, RawEntitiesClient
 from .types.delete_v1entities_response import DeleteV1EntitiesResponse
+from .types.get_v1entities_developer_entities_response import GetV1EntitiesDeveloperEntitiesResponse
 from .types.get_v1entities_response import GetV1EntitiesResponse
 from .types.post_v1entities_auth_generate_token_response import PostV1EntitiesAuthGenerateTokenResponse
 from .types.post_v1entities_response import PostV1EntitiesResponse
@@ -279,6 +280,47 @@ class EntitiesClient:
         client.entities.delete_an_entity(entity_id='entityId', )
         """
         _response = self._raw_client.delete_an_entity(entity_id=entity_id, request_options=request_options)
+        return _response.data
+
+    def get_entities_by_developer_id(
+        self,
+        *,
+        developer_id: str,
+        page_size: typing.Optional[int] = None,
+        cursor: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1EntitiesDeveloperEntitiesResponse:
+        """
+        Retrieves all entities associated with a specific developer
+
+        Parameters
+        ----------
+        developer_id : str
+            ID of the developer whose entities to retrieve
+
+        page_size : typing.Optional[int]
+            Number of entities to return per page
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetV1EntitiesDeveloperEntitiesResponse
+            Entities retrieved successfully
+
+        Examples
+        --------
+        from openledger import OpenLedgerClient
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.entities.get_entities_by_developer_id(developer_id='developerId', )
+        """
+        _response = self._raw_client.get_entities_by_developer_id(
+            developer_id=developer_id, page_size=page_size, cursor=cursor, request_options=request_options
+        )
         return _response.data
 
 
@@ -560,4 +602,48 @@ class AsyncEntitiesClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.delete_an_entity(entity_id=entity_id, request_options=request_options)
+        return _response.data
+
+    async def get_entities_by_developer_id(
+        self,
+        *,
+        developer_id: str,
+        page_size: typing.Optional[int] = None,
+        cursor: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GetV1EntitiesDeveloperEntitiesResponse:
+        """
+        Retrieves all entities associated with a specific developer
+
+        Parameters
+        ----------
+        developer_id : str
+            ID of the developer whose entities to retrieve
+
+        page_size : typing.Optional[int]
+            Number of entities to return per page
+
+        cursor : typing.Optional[str]
+            Cursor for pagination
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GetV1EntitiesDeveloperEntitiesResponse
+            Entities retrieved successfully
+
+        Examples
+        --------
+        from openledger import AsyncOpenLedgerClient
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+        async def main() -> None:
+            await client.entities.get_entities_by_developer_id(developer_id='developerId', )
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_entities_by_developer_id(
+            developer_id=developer_id, page_size=page_size, cursor=cursor, request_options=request_options
+        )
         return _response.data
