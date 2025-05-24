@@ -4,8 +4,6 @@
 
 from .types import (
     DeleteV1EntitiesResponse,
-    GetV1EntitiesDeveloperEntitiesResponse,
-    GetV1EntitiesDeveloperEntitiesResponseEntitiesItem,
     GetV1EntitiesResponse,
     GetV1EntitiesResponseEntity,
     GetV1EntitiesResponseEntityAddress,
@@ -18,8 +16,6 @@ from .types import (
 
 __all__ = [
     "DeleteV1EntitiesResponse",
-    "GetV1EntitiesDeveloperEntitiesResponse",
-    "GetV1EntitiesDeveloperEntitiesResponseEntitiesItem",
     "GetV1EntitiesResponse",
     "GetV1EntitiesResponseEntity",
     "GetV1EntitiesResponseEntityAddress",

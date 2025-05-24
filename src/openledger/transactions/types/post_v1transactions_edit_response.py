@@ -3,20 +3,14 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ...core.serialization import FieldMetadata
-from .post_v1transactions_edit_response_transaction import PostV1TransactionsEditResponseTransaction
 
 
 class PostV1TransactionsEditResponse(UniversalBaseModel):
-    transaction: typing.Optional[PostV1TransactionsEditResponseTransaction] = None
-    update_result: typing_extensions.Annotated[
-        typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="updateResult")
-    ] = pydantic.Field(default=None)
-    """
-    Result of the update operation
-    """
+    id: typing.Optional[str] = None
+    debit_account_id: typing.Optional[float] = None
+    description: typing.Optional[str] = None
+    credit_account_id: typing.Optional[float] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

@@ -70,8 +70,13 @@ class ReportsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.reports.generate_financial_reports(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.reports.generate_financial_reports(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.generate_financial_reports(
             entity_id=entity_id, month=month, year=year, type=type, ledger_id=ledger_id, request_options=request_options
@@ -111,8 +116,13 @@ class ReportsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.reports.get_general_ledger_report(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.reports.get_general_ledger_report(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_general_ledger_report(
             entity_id=entity_id, month=month, year=year, request_options=request_options
@@ -160,8 +170,13 @@ class ReportsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.reports.get_financial_overview(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.reports.get_financial_overview(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_financial_overview(
             entity_id=entity_id,
@@ -229,11 +244,21 @@ class AsyncReportsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.reports.generate_financial_reports(entity_id='entityId', )
+            await client.reports.generate_financial_reports(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.generate_financial_reports(
@@ -273,11 +298,21 @@ class AsyncReportsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.reports.get_general_ledger_report(entity_id='entityId', )
+            await client.reports.get_general_ledger_report(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_general_ledger_report(
@@ -325,11 +360,21 @@ class AsyncReportsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.reports.get_financial_overview(entity_id='entityId', )
+            await client.reports.get_financial_overview(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_financial_overview(

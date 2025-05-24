@@ -46,8 +46,13 @@ class BanksClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.banks.create_a_bank_link(entity_id='ent_123456', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.banks.create_a_bank_link(
+            entity_id="ent_123456",
+        )
         """
         _response = self._raw_client.create_a_bank_link(entity_id=entity_id, request_options=request_options)
         return _response.data
@@ -77,8 +82,14 @@ class BanksClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.banks.add_bank_accounts(entity_id='ent_123456', public_token='public-sandbox-123456-abcdef', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.banks.add_bank_accounts(
+            entity_id="ent_123456",
+            public_token="public-sandbox-123456-abcdef",
+        )
         """
         _response = self._raw_client.add_bank_accounts(
             entity_id=entity_id, public_token=public_token, request_options=request_options
@@ -122,11 +133,21 @@ class AsyncBanksClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.banks.create_a_bank_link(entity_id='ent_123456', )
+            await client.banks.create_a_bank_link(
+                entity_id="ent_123456",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.create_a_bank_link(entity_id=entity_id, request_options=request_options)
@@ -156,11 +177,22 @@ class AsyncBanksClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.banks.add_bank_accounts(entity_id='ent_123456', public_token='public-sandbox-123456-abcdef', )
+            await client.banks.add_bank_accounts(
+                entity_id="ent_123456",
+                public_token="public-sandbox-123456-abcdef",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.add_bank_accounts(

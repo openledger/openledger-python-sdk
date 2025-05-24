@@ -72,8 +72,13 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.get_transactions_by_entity(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.get_transactions_by_entity(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_transactions_by_entity(
             entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
@@ -137,8 +142,16 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.create_a_new_transaction(entity_id='entityId', amount=1.1, debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.create_a_new_transaction(
+            entity_id="entityId",
+            amount=1.1,
+            debit_account_id="debitAccountId",
+            credit_account_id="creditAccountId",
+        )
         """
         _response = self._raw_client.create_a_new_transaction(
             entity_id=entity_id,
@@ -179,8 +192,14 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.delete_a_transaction(entity_id='entityId', transaction_id='transactionId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.delete_a_transaction(
+            entity_id="entityId",
+            transaction_id="transactionId",
+        )
         """
         _response = self._raw_client.delete_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, request_options=request_options
@@ -224,8 +243,13 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.edit_a_transaction(id='id', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.edit_a_transaction(
+            id="id",
+        )
         """
         _response = self._raw_client.edit_a_transaction(
             id=id,
@@ -264,8 +288,14 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.approve_one_or_multiple_transactions(entity_id='entityId', request='tx_1234567890abcdef', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.approve_one_or_multiple_transactions(
+            entity_id="entityId",
+            request="tx_1234567890abcdef",
+        )
         """
         _response = self._raw_client.approve_one_or_multiple_transactions(
             entity_id=entity_id, request=request, request_options=request_options
@@ -294,8 +324,13 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.get_transactions_by_month(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.get_transactions_by_month(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_transactions_by_month(entity_id=entity_id, request_options=request_options)
         return _response.data
@@ -333,8 +368,15 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.categorize_a_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.categorize_a_transaction(
+            entity_id="entityId",
+            transaction_id="transactionId",
+            category_id="categoryId",
+        )
         """
         _response = self._raw_client.categorize_a_transaction(
             entity_id=entity_id, transaction_id=transaction_id, category_id=category_id, request_options=request_options
@@ -381,8 +423,13 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.search_transactions(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.search_transactions(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.search_transactions(
             entity_id=entity_id, query=query, filters=filters, page=page, limit=limit, request_options=request_options
@@ -434,8 +481,14 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.chat_with_transactions(entity_id='entityId', prompt='prompt', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.chat_with_transactions(
+            entity_id="entityId",
+            prompt="prompt",
+        )
         """
         _response = self._raw_client.chat_with_transactions(
             entity_id=entity_id,
@@ -481,8 +534,13 @@ class TransactionsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.transactions.get_entity_counterparties(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.transactions.get_entity_counterparties(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_entity_counterparties(
             entity_id=entity_id, cursor=cursor, page_size=page_size, request_options=request_options
@@ -537,11 +595,21 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.get_transactions_by_entity(entity_id='entityId', )
+            await client.transactions.get_transactions_by_entity(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_transactions_by_entity(
@@ -605,11 +673,24 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.create_a_new_transaction(entity_id='entityId', amount=1.1, debit_account_id='debitAccountId', credit_account_id='creditAccountId', )
+            await client.transactions.create_a_new_transaction(
+                entity_id="entityId",
+                amount=1.1,
+                debit_account_id="debitAccountId",
+                credit_account_id="creditAccountId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.create_a_new_transaction(
@@ -650,11 +731,22 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.delete_a_transaction(entity_id='entityId', transaction_id='transactionId', )
+            await client.transactions.delete_a_transaction(
+                entity_id="entityId",
+                transaction_id="transactionId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.delete_a_transaction(
@@ -698,11 +790,21 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.edit_a_transaction(id='id', )
+            await client.transactions.edit_a_transaction(
+                id="id",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.edit_a_transaction(
@@ -741,11 +843,22 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.approve_one_or_multiple_transactions(entity_id='entityId', request='tx_1234567890abcdef', )
+            await client.transactions.approve_one_or_multiple_transactions(
+                entity_id="entityId",
+                request="tx_1234567890abcdef",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.approve_one_or_multiple_transactions(
@@ -774,11 +887,21 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.get_transactions_by_month(entity_id='entityId', )
+            await client.transactions.get_transactions_by_month(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_transactions_by_month(
@@ -818,11 +941,23 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.categorize_a_transaction(entity_id='entityId', transaction_id='transactionId', category_id='categoryId', )
+            await client.transactions.categorize_a_transaction(
+                entity_id="entityId",
+                transaction_id="transactionId",
+                category_id="categoryId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.categorize_a_transaction(
@@ -869,11 +1004,21 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.search_transactions(entity_id='entityId', )
+            await client.transactions.search_transactions(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.search_transactions(
@@ -925,11 +1070,22 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.chat_with_transactions(entity_id='entityId', prompt='prompt', )
+            await client.transactions.chat_with_transactions(
+                entity_id="entityId",
+                prompt="prompt",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.chat_with_transactions(
@@ -975,11 +1131,21 @@ class AsyncTransactionsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.transactions.get_entity_counterparties(entity_id='entityId', )
+            await client.transactions.get_entity_counterparties(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_entity_counterparties(

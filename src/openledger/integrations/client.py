@@ -50,8 +50,13 @@ class IntegrationsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.integrations.get_integration_status(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.integrations.get_integration_status(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_integration_status(entity_id=entity_id, request_options=request_options)
         return _response.data
@@ -89,8 +94,14 @@ class IntegrationsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.integrations.connect_an_integration(provider='quickbooks', entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.integrations.connect_an_integration(
+            provider="quickbooks",
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.connect_an_integration(
             provider=provider, entity_id=entity_id, connection_type=connection_type, request_options=request_options
@@ -122,8 +133,14 @@ class IntegrationsClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.integrations.disconnect_an_integration(entity_id='entityId', integration_type='integrationType', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.integrations.disconnect_an_integration(
+            entity_id="entityId",
+            integration_type="integrationType",
+        )
         """
         _response = self._raw_client.disconnect_an_integration(
             entity_id=entity_id, integration_type=integration_type, request_options=request_options
@@ -167,11 +184,21 @@ class AsyncIntegrationsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.integrations.get_integration_status(entity_id='entityId', )
+            await client.integrations.get_integration_status(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_integration_status(entity_id=entity_id, request_options=request_options)
@@ -209,11 +236,22 @@ class AsyncIntegrationsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.integrations.connect_an_integration(provider='quickbooks', entity_id='entityId', )
+            await client.integrations.connect_an_integration(
+                provider="quickbooks",
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.connect_an_integration(
@@ -245,11 +283,22 @@ class AsyncIntegrationsClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.integrations.disconnect_an_integration(entity_id='entityId', integration_type='integrationType', )
+            await client.integrations.disconnect_an_integration(
+                entity_id="entityId",
+                integration_type="integrationType",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.disconnect_an_integration(

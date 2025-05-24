@@ -4,6 +4,9 @@
 
 from .delete_v1transactions_response import DeleteV1TransactionsResponse
 from .get_v1transactions_by_month_response_item import GetV1TransactionsByMonthResponseItem
+from .get_v1transactions_by_month_response_item_plaid_account_breakdown_item import (
+    GetV1TransactionsByMonthResponseItemPlaidAccountBreakdownItem,
+)
 from .get_v1transactions_chat_response import GetV1TransactionsChatResponse
 from .get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
 from .get_v1transactions_counterparties_response_counterparties_item import (
@@ -20,6 +23,9 @@ from .get_v1transactions_response_transactions_item_credit_account import (
 from .get_v1transactions_response_transactions_item_debit_account import (
     GetV1TransactionsResponseTransactionsItemDebitAccount,
 )
+from .get_v1transactions_response_transactions_item_plaid_account import (
+    GetV1TransactionsResponseTransactionsItemPlaidAccount,
+)
 from .get_v1transactions_response_transactions_item_status import GetV1TransactionsResponseTransactionsItemStatus
 from .post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
 from .post_v1transactions_categorize_response_transaction import PostV1TransactionsCategorizeResponseTransaction
@@ -27,13 +33,6 @@ from .post_v1transactions_categorize_response_transaction_metadata import (
     PostV1TransactionsCategorizeResponseTransactionMetadata,
 )
 from .post_v1transactions_edit_response import PostV1TransactionsEditResponse
-from .post_v1transactions_edit_response_transaction import PostV1TransactionsEditResponseTransaction
-from .post_v1transactions_edit_response_transaction_credit_account import (
-    PostV1TransactionsEditResponseTransactionCreditAccount,
-)
-from .post_v1transactions_edit_response_transaction_debit_account import (
-    PostV1TransactionsEditResponseTransactionDebitAccount,
-)
 from .post_v1transactions_request_status import PostV1TransactionsRequestStatus
 from .post_v1transactions_response import PostV1TransactionsResponse
 from .post_v1transactions_response_transaction import PostV1TransactionsResponseTransaction
@@ -55,6 +54,7 @@ from .put_v1transactions_approve_response_results_item_transaction import (
 __all__ = [
     "DeleteV1TransactionsResponse",
     "GetV1TransactionsByMonthResponseItem",
+    "GetV1TransactionsByMonthResponseItemPlaidAccountBreakdownItem",
     "GetV1TransactionsChatResponse",
     "GetV1TransactionsCounterpartiesResponse",
     "GetV1TransactionsCounterpartiesResponseCounterpartiesItem",
@@ -63,14 +63,12 @@ __all__ = [
     "GetV1TransactionsResponseTransactionsItem",
     "GetV1TransactionsResponseTransactionsItemCreditAccount",
     "GetV1TransactionsResponseTransactionsItemDebitAccount",
+    "GetV1TransactionsResponseTransactionsItemPlaidAccount",
     "GetV1TransactionsResponseTransactionsItemStatus",
     "PostV1TransactionsCategorizeResponse",
     "PostV1TransactionsCategorizeResponseTransaction",
     "PostV1TransactionsCategorizeResponseTransactionMetadata",
     "PostV1TransactionsEditResponse",
-    "PostV1TransactionsEditResponseTransaction",
-    "PostV1TransactionsEditResponseTransactionCreditAccount",
-    "PostV1TransactionsEditResponseTransactionDebitAccount",
     "PostV1TransactionsRequestStatus",
     "PostV1TransactionsResponse",
     "PostV1TransactionsResponseTransaction",

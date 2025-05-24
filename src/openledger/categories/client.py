@@ -50,8 +50,13 @@ class CategoriesClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.categories.get_categories(entity_id='entityId', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.categories.get_categories(
+            entity_id="entityId",
+        )
         """
         _response = self._raw_client.get_categories(entity_id=entity_id, request_options=request_options)
         return _response.data
@@ -98,8 +103,15 @@ class CategoriesClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.categories.create_a_new_category(
+            entity_id="entityId",
+            name="name",
+            type="ASSET",
+        )
         """
         _response = self._raw_client.create_a_new_category(
             entity_id=entity_id, name=name, type=type, sub_type_code=sub_type_code, request_options=request_options
@@ -143,11 +155,21 @@ class AsyncCategoriesClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.categories.get_categories(entity_id='entityId', )
+            await client.categories.get_categories(
+                entity_id="entityId",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.get_categories(entity_id=entity_id, request_options=request_options)
@@ -194,11 +216,23 @@ class AsyncCategoriesClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
+            await client.categories.create_a_new_category(
+                entity_id="entityId",
+                name="name",
+                type="ASSET",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.create_a_new_category(

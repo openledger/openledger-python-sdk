@@ -51,8 +51,14 @@ class DevelopersClient:
         Examples
         --------
         from openledger import OpenLedgerClient
-        client = OpenLedgerClient(token="YOUR_TOKEN", )
-        client.developers.generate_developer_authentication_token(developer_id='developerId', api_key='apiKey', )
+
+        client = OpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+        client.developers.generate_developer_authentication_token(
+            developer_id="developerId",
+            api_key="apiKey",
+        )
         """
         _response = self._raw_client.generate_developer_authentication_token(
             developer_id=developer_id, api_key=api_key, request_options=request_options
@@ -99,11 +105,22 @@ class AsyncDevelopersClient:
 
         Examples
         --------
-        from openledger import AsyncOpenLedgerClient
         import asyncio
-        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+        from openledger import AsyncOpenLedgerClient
+
+        client = AsyncOpenLedgerClient(
+            token="YOUR_TOKEN",
+        )
+
+
         async def main() -> None:
-            await client.developers.generate_developer_authentication_token(developer_id='developerId', api_key='apiKey', )
+            await client.developers.generate_developer_authentication_token(
+                developer_id="developerId",
+                api_key="apiKey",
+            )
+
+
         asyncio.run(main())
         """
         _response = await self._raw_client.generate_developer_authentication_token(

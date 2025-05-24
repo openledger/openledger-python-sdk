@@ -21,8 +21,15 @@ Instantiate and use the client with the following:
 
 ```python
 from openledger import OpenLedgerClient
-client = OpenLedgerClient(token="YOUR_TOKEN", )
-client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.categories.create_a_new_category(
+    entity_id="entityId",
+    name="name",
+    type="ASSET",
+)
 ```
 
 ## Async Client
@@ -30,12 +37,25 @@ client.categories.create_a_new_category(entity_id='entityId', name='name', type=
 The SDK also exports an `async` client so that you can make non-blocking calls to our API.
 
 ```python
-from openledger import AsyncOpenLedgerClient
 import asyncio
-client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+from openledger import AsyncOpenLedgerClient
+
+client = AsyncOpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+
+
 async def main() -> None:
-    await client.categories.create_a_new_category(entity_id='entityId', name='name', type="ASSET", )
-asyncio.run(main())```
+    await client.categories.create_a_new_category(
+        entity_id="entityId",
+        name="name",
+        type="ASSET",
+    )
+
+
+asyncio.run(main())
+```
 
 ## Exception Handling
 
@@ -44,6 +64,7 @@ will be thrown.
 
 ```python
 from openledger.core.api_error import ApiError
+
 try:
     client.categories.create_a_new_category(...)
 except ApiError as e:
@@ -60,7 +81,10 @@ The `.with_raw_response` property returns a "raw" client that can be used to acc
 
 ```python
 from openledger import OpenLedgerClient
-client = OpenLedgerClient(..., )
+
+client = OpenLedgerClient(
+    ...,
+)
 response = client.categories.with_raw_response.create_a_new_category(...)
 print(response.headers)  # access the response headers
 print(response.data)  # access the underlying object
@@ -93,7 +117,12 @@ The SDK defaults to a 60 second timeout. You can configure this with a timeout o
 ```python
 
 from openledger import OpenLedgerClient
-client = OpenLedgerClient(..., timeout=20.0, )
+
+client = OpenLedgerClient(
+    ...,
+    timeout=20.0,
+)
+
 
 # Override timeout for a specific method
 client.categories.create_a_new_category(..., request_options={
@@ -107,9 +136,17 @@ You can override the `httpx` client to customize it for your use-case. Some comm
 and transports.
 
 ```python
-from openledger import OpenLedgerClient
 import httpx
-client = OpenLedgerClient(..., httpx_client=httpx.Client(proxies="http://my.test.proxy.example.com", transport=httpx.HTTPTransport(local_address="0.0.0.0"), ))```
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    ...,
+    httpx_client=httpx.Client(
+        proxies="http://my.test.proxy.example.com",
+        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
+    ),
+)
+```
 
 ## Contributing
 

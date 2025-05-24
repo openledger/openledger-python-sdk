@@ -13,6 +13,9 @@ from .get_v1transactions_response_transactions_item_credit_account import (
 from .get_v1transactions_response_transactions_item_debit_account import (
     GetV1TransactionsResponseTransactionsItemDebitAccount,
 )
+from .get_v1transactions_response_transactions_item_plaid_account import (
+    GetV1TransactionsResponseTransactionsItemPlaidAccount,
+)
 from .get_v1transactions_response_transactions_item_status import GetV1TransactionsResponseTransactionsItemStatus
 
 
@@ -39,6 +42,7 @@ class GetV1TransactionsResponseTransactionsItem(UniversalBaseModel):
     credit_account: typing_extensions.Annotated[
         typing.Optional[GetV1TransactionsResponseTransactionsItemCreditAccount], FieldMetadata(alias="creditAccount")
     ] = None
+    plaid_account: typing.Optional[GetV1TransactionsResponseTransactionsItemPlaidAccount] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

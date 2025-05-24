@@ -26,6 +26,8 @@ class OpenLedgerClient:
     environment : OpenLedgerClientEnvironment
         The environment to use for requests from the client. from .environment import OpenLedgerClientEnvironment
 
+
+
         Defaults to OpenLedgerClientEnvironment.DEFAULT
 
 
@@ -43,7 +45,10 @@ class OpenLedgerClient:
     Examples
     --------
     from openledger import OpenLedgerClient
-    client = OpenLedgerClient(token="YOUR_TOKEN", )
+
+    client = OpenLedgerClient(
+        token="YOUR_TOKEN",
+    )
     """
 
     def __init__(
@@ -90,6 +95,8 @@ class AsyncOpenLedgerClient:
     environment : OpenLedgerClientEnvironment
         The environment to use for requests from the client. from .environment import OpenLedgerClientEnvironment
 
+
+
         Defaults to OpenLedgerClientEnvironment.DEFAULT
 
 
@@ -107,7 +114,10 @@ class AsyncOpenLedgerClient:
     Examples
     --------
     from openledger import AsyncOpenLedgerClient
-    client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
+
+    client = AsyncOpenLedgerClient(
+        token="YOUR_TOKEN",
+    )
     """
 
     def __init__(

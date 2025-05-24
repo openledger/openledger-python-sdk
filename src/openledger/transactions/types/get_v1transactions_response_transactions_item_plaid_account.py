@@ -6,9 +6,13 @@ import pydantic
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class PostV1TransactionsEditResponseTransactionDebitAccount(UniversalBaseModel):
+class GetV1TransactionsResponseTransactionsItemPlaidAccount(UniversalBaseModel):
     id: typing.Optional[str] = None
     name: typing.Optional[str] = None
+    type: typing.Optional[str] = None
+    subtype: typing.Optional[str] = None
+    mask: typing.Optional[str] = None
+    institution_id: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
