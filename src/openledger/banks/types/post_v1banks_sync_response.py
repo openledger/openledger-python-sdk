@@ -3,17 +3,12 @@
 import typing
 
 import pydantic
-import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from ...core.serialization import FieldMetadata
-from .put_v1banks_accounts_response_created_accounts_item import PutV1BanksAccountsResponseCreatedAccountsItem
 
 
-class PutV1BanksAccountsResponse(UniversalBaseModel):
-    created_accounts: typing_extensions.Annotated[
-        typing.Optional[typing.List[PutV1BanksAccountsResponseCreatedAccountsItem]],
-        FieldMetadata(alias="createdAccounts"),
-    ] = None
+class PostV1BanksSyncResponse(UniversalBaseModel):
+    success: typing.Optional[bool] = None
+    message: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

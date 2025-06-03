@@ -10,174 +10,61 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
 from ..errors.internal_server_error import InternalServerError
-from ..types.bank_account import BankAccount
-from .types.get_v1banks_create_link_response import GetV1BanksCreateLinkResponse
-from .types.get_v1banks_sync_status_response import GetV1BanksSyncStatusResponse
-from .types.post_v1banks_sync_response import PostV1BanksSyncResponse
+from .types.post_v1auth_developer_token_response import PostV1AuthDeveloperTokenResponse
+from .types.post_v1auth_entity_token_response import PostV1AuthEntityTokenResponse
+from .types.post_v1auth_tokens_request_user_type import PostV1AuthTokensRequestUserType
+from .types.post_v1auth_tokens_response import PostV1AuthTokensResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class RawBanksClient:
+class RawAuthenticationClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def create_a_bank_link(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[GetV1BanksCreateLinkResponse]:
+    def generate_access_token(
+        self,
+        *,
+        user_type: PostV1AuthTokensRequestUserType,
+        id: str,
+        api_key: str,
+        developer_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[PostV1AuthTokensResponse]:
         """
-        Creates a new Plaid link token for connecting a bank account
+        Generates a JWT access token for any user type with a unified request format
 
         Parameters
         ----------
-        entity_id : str
-            The ID of the entity to create the link token for
+        user_type : PostV1AuthTokensRequestUserType
+            The type of user requesting authentication
+
+        id : str
+            The ID of the user (developerId for developers, entityId for entities, userId for admins)
+
+        api_key : str
+            The API key for authentication
+
+        developer_id : typing.Optional[str]
+            Required for entity userType - the developer ID that owns the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[GetV1BanksCreateLinkResponse]
-            Bank link created successfully
+        HttpResponse[PostV1AuthTokensResponse]
+            Token generated successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/banks/create-link",
-            method="GET",
-            params={
-                "entityId": entity_id,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    GetV1BanksCreateLinkResponse,
-                    parse_obj_as(
-                        type_=GetV1BanksCreateLinkResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def add_bank_accounts_for_an_entity(
-        self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[typing.List[BankAccount]]:
-        """
-        Adds bank accounts to an entity using a Plaid public token obtained from the Plaid Link interface
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity to add bank accounts for
-
-        public_token : str
-            The public token obtained from Plaid Link
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[typing.List[BankAccount]]
-            Bank accounts added successfully
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/banks/accounts",
-            method="PUT",
-            params={
-                "entityId": entity_id,
-                "public_token": public_token,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    typing.List[BankAccount],
-                    parse_obj_as(
-                        type_=typing.List[BankAccount],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def sync_plaid_accounts_for_an_entity(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[PostV1BanksSyncResponse]:
-        """
-        Synchronizes transaction data for all connected Plaid accounts belonging to an entity
-
-        Parameters
-        ----------
-        entity_id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[PostV1BanksSyncResponse]
-            Accounts synced successfully
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/banks/sync",
+            "v1/auth/tokens",
             method="POST",
             json={
-                "entityId": entity_id,
+                "userType": user_type,
+                "id": id,
+                "apiKey": api_key,
+                "developerId": developer_id,
             },
             headers={
                 "content-type": "application/json",
@@ -188,9 +75,9 @@ class RawBanksClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1BanksSyncResponse,
+                    PostV1AuthTokensResponse,
                     parse_obj_as(
-                        type_=PostV1BanksSyncResponse,  # type: ignore
+                        type_=PostV1AuthTokensResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -222,39 +109,128 @@ class RawBanksClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def check_sync_status_of_bank_accounts(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[GetV1BanksSyncStatusResponse]:
+    def generate_developer_authentication_token(
+        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[PostV1AuthDeveloperTokenResponse]:
         """
-        Check the synchronization status of bank accounts for an entity
+        Generates a JWT token for developer authentication
 
         Parameters
         ----------
-        entity_id : str
-            The ID of the entity to check sync status for
+        developer_id : str
+            The ID of the developer
+
+        api_key : str
+            The API key for the developer
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[GetV1BanksSyncStatusResponse]
-            Sync status retrieved successfully
+        HttpResponse[PostV1AuthDeveloperTokenResponse]
+            Token generated successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/banks/sync-status",
-            method="GET",
-            params={
-                "entityId": entity_id,
+            "v1/auth/developer-token",
+            method="POST",
+            json={
+                "developerId": developer_id,
+                "apiKey": api_key,
+            },
+            headers={
+                "content-type": "application/json",
             },
             request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetV1BanksSyncStatusResponse,
+                    PostV1AuthDeveloperTokenResponse,
                     parse_obj_as(
-                        type_=GetV1BanksSyncStatusResponse,  # type: ignore
+                        type_=PostV1AuthDeveloperTokenResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def generate_entity_authentication_token(
+        self,
+        *,
+        entity_id: str,
+        api_key: str,
+        developer_id: str,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[PostV1AuthEntityTokenResponse]:
+        """
+        Generates a JWT token for entity authentication
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        api_key : str
+            The API key for the entity
+
+        developer_id : str
+            The ID of the developer
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[PostV1AuthEntityTokenResponse]
+            Token generated successfully
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/auth/entity-token",
+            method="POST",
+            json={
+                "entityId": entity_id,
+                "apiKey": api_key,
+                "developerId": developer_id,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1AuthEntityTokenResponse,
+                    parse_obj_as(
+                        type_=PostV1AuthEntityTokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -287,165 +263,52 @@ class RawBanksClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
-class AsyncRawBanksClient:
+class AsyncRawAuthenticationClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def create_a_bank_link(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[GetV1BanksCreateLinkResponse]:
+    async def generate_access_token(
+        self,
+        *,
+        user_type: PostV1AuthTokensRequestUserType,
+        id: str,
+        api_key: str,
+        developer_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[PostV1AuthTokensResponse]:
         """
-        Creates a new Plaid link token for connecting a bank account
+        Generates a JWT access token for any user type with a unified request format
 
         Parameters
         ----------
-        entity_id : str
-            The ID of the entity to create the link token for
+        user_type : PostV1AuthTokensRequestUserType
+            The type of user requesting authentication
+
+        id : str
+            The ID of the user (developerId for developers, entityId for entities, userId for admins)
+
+        api_key : str
+            The API key for authentication
+
+        developer_id : typing.Optional[str]
+            Required for entity userType - the developer ID that owns the entity
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[GetV1BanksCreateLinkResponse]
-            Bank link created successfully
+        AsyncHttpResponse[PostV1AuthTokensResponse]
+            Token generated successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/banks/create-link",
-            method="GET",
-            params={
-                "entityId": entity_id,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    GetV1BanksCreateLinkResponse,
-                    parse_obj_as(
-                        type_=GetV1BanksCreateLinkResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def add_bank_accounts_for_an_entity(
-        self, *, entity_id: str, public_token: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[typing.List[BankAccount]]:
-        """
-        Adds bank accounts to an entity using a Plaid public token obtained from the Plaid Link interface
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity to add bank accounts for
-
-        public_token : str
-            The public token obtained from Plaid Link
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[typing.List[BankAccount]]
-            Bank accounts added successfully
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/banks/accounts",
-            method="PUT",
-            params={
-                "entityId": entity_id,
-                "public_token": public_token,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    typing.List[BankAccount],
-                    parse_obj_as(
-                        type_=typing.List[BankAccount],  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def sync_plaid_accounts_for_an_entity(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[PostV1BanksSyncResponse]:
-        """
-        Synchronizes transaction data for all connected Plaid accounts belonging to an entity
-
-        Parameters
-        ----------
-        entity_id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[PostV1BanksSyncResponse]
-            Accounts synced successfully
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/banks/sync",
+            "v1/auth/tokens",
             method="POST",
             json={
-                "entityId": entity_id,
+                "userType": user_type,
+                "id": id,
+                "apiKey": api_key,
+                "developerId": developer_id,
             },
             headers={
                 "content-type": "application/json",
@@ -456,9 +319,9 @@ class AsyncRawBanksClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1BanksSyncResponse,
+                    PostV1AuthTokensResponse,
                     parse_obj_as(
-                        type_=PostV1BanksSyncResponse,  # type: ignore
+                        type_=PostV1AuthTokensResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -490,39 +353,128 @@ class AsyncRawBanksClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def check_sync_status_of_bank_accounts(
-        self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[GetV1BanksSyncStatusResponse]:
+    async def generate_developer_authentication_token(
+        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[PostV1AuthDeveloperTokenResponse]:
         """
-        Check the synchronization status of bank accounts for an entity
+        Generates a JWT token for developer authentication
 
         Parameters
         ----------
-        entity_id : str
-            The ID of the entity to check sync status for
+        developer_id : str
+            The ID of the developer
+
+        api_key : str
+            The API key for the developer
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[GetV1BanksSyncStatusResponse]
-            Sync status retrieved successfully
+        AsyncHttpResponse[PostV1AuthDeveloperTokenResponse]
+            Token generated successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/banks/sync-status",
-            method="GET",
-            params={
-                "entityId": entity_id,
+            "v1/auth/developer-token",
+            method="POST",
+            json={
+                "developerId": developer_id,
+                "apiKey": api_key,
+            },
+            headers={
+                "content-type": "application/json",
             },
             request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetV1BanksSyncStatusResponse,
+                    PostV1AuthDeveloperTokenResponse,
                     parse_obj_as(
-                        type_=GetV1BanksSyncStatusResponse,  # type: ignore
+                        type_=PostV1AuthDeveloperTokenResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 500:
+                raise InternalServerError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def generate_entity_authentication_token(
+        self,
+        *,
+        entity_id: str,
+        api_key: str,
+        developer_id: str,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[PostV1AuthEntityTokenResponse]:
+        """
+        Generates a JWT token for entity authentication
+
+        Parameters
+        ----------
+        entity_id : str
+            The ID of the entity
+
+        api_key : str
+            The API key for the entity
+
+        developer_id : str
+            The ID of the developer
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[PostV1AuthEntityTokenResponse]
+            Token generated successfully
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/auth/entity-token",
+            method="POST",
+            json={
+                "entityId": entity_id,
+                "apiKey": api_key,
+                "developerId": developer_id,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    PostV1AuthEntityTokenResponse,
+                    parse_obj_as(
+                        type_=PostV1AuthEntityTokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

@@ -12,7 +12,6 @@ from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
-from ..errors.unauthorized_error import UnauthorizedError
 from .types.delete_v1entities_response import DeleteV1EntitiesResponse
 from .types.get_v1entities_response import GetV1EntitiesResponse
 from .types.post_v1entities_auth_generate_token_response import PostV1EntitiesAuthGenerateTokenResponse
@@ -27,7 +26,7 @@ class RawEntitiesClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def generate_authentication_token(
+    def generate_entity_authentication_token(
         self,
         *,
         entity_id: str,
@@ -81,8 +80,8 @@ class RawEntitiesClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 401:
-                raise UnauthorizedError(
+            if _response.status_code == 400:
+                raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
                         typing.Optional[typing.Any],
@@ -481,7 +480,7 @@ class AsyncRawEntitiesClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def generate_authentication_token(
+    async def generate_entity_authentication_token(
         self,
         *,
         entity_id: str,
@@ -535,8 +534,8 @@ class AsyncRawEntitiesClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 401:
-                raise UnauthorizedError(
+            if _response.status_code == 400:
+                raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
                         typing.Optional[typing.Any],

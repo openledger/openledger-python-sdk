@@ -3,11 +3,16 @@
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from ..core.serialization import FieldMetadata
 
 
-class BadRequestErrorBody(UniversalBaseModel):
-    error: typing.Optional[str] = None
+class BankAccount(UniversalBaseModel):
+    id: str
+    account_name: typing_extensions.Annotated[str, FieldMetadata(alias="accountName")]
+    account_type: typing_extensions.Annotated[str, FieldMetadata(alias="accountType")]
+    account_mask: typing_extensions.Annotated[str, FieldMetadata(alias="accountMask")]
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

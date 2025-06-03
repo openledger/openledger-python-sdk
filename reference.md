@@ -70,7 +70,7 @@ client.banks.create_a_bank_link(
 </dl>
 </details>
 
-<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">add_bank_accounts</a>(...)</code></summary>
+<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">add_bank_accounts_for_an_entity</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -82,7 +82,7 @@ client.banks.create_a_bank_link(
 <dl>
 <dd>
 
-Adds new bank accounts using a Plaid public token
+Adds bank accounts to an entity using a Plaid public token obtained from the Plaid Link interface
 </dd>
 </dl>
 </dd>
@@ -102,9 +102,9 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.banks.add_bank_accounts(
-    entity_id="ent_123456",
-    public_token="public-sandbox-123456-abcdef",
+client.banks.add_bank_accounts_for_an_entity(
+    entity_id="entityId",
+    public_token="public_token",
 )
 
 ```
@@ -121,7 +121,7 @@ client.banks.add_bank_accounts(
 <dl>
 <dd>
 
-**entity_id:** `str` — The ID of the entity to add the bank accounts for
+**entity_id:** `str` — The ID of the entity to add bank accounts for
     
 </dd>
 </dl>
@@ -129,7 +129,147 @@ client.banks.add_bank_accounts(
 <dl>
 <dd>
 
-**public_token:** `str` — The Plaid public token received from the Plaid Link onSuccess callback
+**public_token:** `str` — The public token obtained from Plaid Link
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">sync_plaid_accounts_for_an_entity</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Synchronizes transaction data for all connected Plaid accounts belonging to an entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.banks.sync_plaid_accounts_for_an_entity(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.banks.<a href="src/openledger/banks/client.py">check_sync_status_of_bank_accounts</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Check the synchronization status of bank accounts for an entity
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.banks.check_sync_status_of_bank_accounts(
+    entity_id="entityId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — The ID of the entity to check sync status for
     
 </dd>
 </dl>
@@ -404,7 +544,7 @@ client.developers.generate_developer_authentication_token(
 </details>
 
 ## Entities
-<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">generate_authentication_token</a>(...)</code></summary>
+<details><summary><code>client.entities.<a href="src/openledger/entities/client.py">generate_entity_authentication_token</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -436,7 +576,7 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.entities.generate_authentication_token(
+client.entities.generate_entity_authentication_token(
     entity_id="entityId",
     api_key="apiKey",
     developer_id="developerId",
@@ -2348,6 +2488,270 @@ client.transactions.get_entity_counterparties(
 <dd>
 
 **page_size:** `typing.Optional[int]` — Number of counterparties per page
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Authentication
+<details><summary><code>client.authentication.<a href="src/openledger/authentication/client.py">generate_access_token</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generates a JWT access token for any user type with a unified request format
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.authentication.generate_access_token(
+    user_type="developer",
+    id="id",
+    api_key="apiKey",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**user_type:** `PostV1AuthTokensRequestUserType` — The type of user requesting authentication
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**id:** `str` — The ID of the user (developerId for developers, entityId for entities, userId for admins)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_key:** `str` — The API key for authentication
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**developer_id:** `typing.Optional[str]` — Required for entity userType - the developer ID that owns the entity
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.authentication.<a href="src/openledger/authentication/client.py">generate_developer_authentication_token</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generates a JWT token for developer authentication
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.authentication.generate_developer_authentication_token(
+    developer_id="developerId",
+    api_key="apiKey",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**developer_id:** `str` — The ID of the developer
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_key:** `str` — The API key for the developer
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.authentication.<a href="src/openledger/authentication/client.py">generate_entity_authentication_token</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Generates a JWT token for entity authentication
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from openledger import OpenLedgerClient
+
+client = OpenLedgerClient(
+    token="YOUR_TOKEN",
+)
+client.authentication.generate_entity_authentication_token(
+    entity_id="entityId",
+    api_key="apiKey",
+    developer_id="developerId",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**entity_id:** `str` — The ID of the entity
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_key:** `str` — The API key for the entity
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**developer_id:** `str` — The ID of the developer
     
 </dd>
 </dl>

@@ -6,8 +6,10 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class BadRequestErrorBody(UniversalBaseModel):
-    error: typing.Optional[str] = None
+class DeveloperCreateRequestPreferences(UniversalBaseModel):
+    currency: str
+    timezone: str
+    locale: str
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

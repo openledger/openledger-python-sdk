@@ -3,6 +3,7 @@
 import typing
 
 import httpx
+from .authentication.client import AsyncAuthenticationClient, AuthenticationClient
 from .banks.client import AsyncBanksClient, BanksClient
 from .categories.client import AsyncCategoriesClient, CategoriesClient
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
@@ -81,6 +82,7 @@ class OpenLedgerClient:
         self.integrations = IntegrationsClient(client_wrapper=self._client_wrapper)
         self.reports = ReportsClient(client_wrapper=self._client_wrapper)
         self.transactions = TransactionsClient(client_wrapper=self._client_wrapper)
+        self.authentication = AuthenticationClient(client_wrapper=self._client_wrapper)
 
 
 class AsyncOpenLedgerClient:
@@ -150,6 +152,7 @@ class AsyncOpenLedgerClient:
         self.integrations = AsyncIntegrationsClient(client_wrapper=self._client_wrapper)
         self.reports = AsyncReportsClient(client_wrapper=self._client_wrapper)
         self.transactions = AsyncTransactionsClient(client_wrapper=self._client_wrapper)
+        self.authentication = AsyncAuthenticationClient(client_wrapper=self._client_wrapper)
 
 
 def _get_base_url(*, base_url: typing.Optional[str] = None, environment: OpenLedgerClientEnvironment) -> str:

@@ -7,7 +7,6 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
 class InternalServerErrorBody(UniversalBaseModel):
-    success: typing.Optional[bool] = None
     error: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:

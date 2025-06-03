@@ -6,13 +6,21 @@ import pydantic
 import typing_extensions
 from ...core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ...core.serialization import FieldMetadata
+from .get_v1banks_sync_status_response_accounts_item_sync_status import (
+    GetV1BanksSyncStatusResponseAccountsItemSyncStatus,
+)
 
 
-class PutV1BanksAccountsResponseCreatedAccountsItem(UniversalBaseModel):
+class GetV1BanksSyncStatusResponseAccountsItem(UniversalBaseModel):
     id: typing.Optional[str] = None
     account_name: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="accountName")] = None
-    account_type: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="accountType")] = None
     account_mask: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="accountMask")] = None
+    sync_status: typing_extensions.Annotated[
+        typing.Optional[GetV1BanksSyncStatusResponseAccountsItemSyncStatus], FieldMetadata(alias="syncStatus")
+    ] = None
+    transaction_count: typing_extensions.Annotated[typing.Optional[float], FieldMetadata(alias="transactionCount")] = (
+        None
+    )
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

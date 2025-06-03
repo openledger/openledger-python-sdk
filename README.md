@@ -13,7 +13,7 @@ pip install OpenLedger
 
 ## Reference
 
-A full reference for this library is available [here](./reference.md).
+A full reference for this library is available [here](https://github.com/openledger/openledger-python-sdk/blob/HEAD/./reference.md).
 
 ## Usage
 
@@ -25,10 +25,8 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     token="YOUR_TOKEN",
 )
-client.categories.create_a_new_category(
+client.banks.sync_plaid_accounts_for_an_entity(
     entity_id="entityId",
-    name="name",
-    type="ASSET",
 )
 ```
 
@@ -47,10 +45,8 @@ client = AsyncOpenLedgerClient(
 
 
 async def main() -> None:
-    await client.categories.create_a_new_category(
+    await client.banks.sync_plaid_accounts_for_an_entity(
         entity_id="entityId",
-        name="name",
-        type="ASSET",
     )
 
 
@@ -66,7 +62,7 @@ will be thrown.
 from openledger.core.api_error import ApiError
 
 try:
-    client.categories.create_a_new_category(...)
+    client.banks.sync_plaid_accounts_for_an_entity(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -85,7 +81,7 @@ from openledger import OpenLedgerClient
 client = OpenLedgerClient(
     ...,
 )
-response = client.categories.with_raw_response.create_a_new_category(...)
+response = client.banks.with_raw_response.sync_plaid_accounts_for_an_entity(...)
 print(response.headers)  # access the response headers
 print(response.data)  # access the underlying object
 ```
@@ -105,7 +101,7 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.categories.create_a_new_category(..., request_options={
+client.banks.sync_plaid_accounts_for_an_entity(..., request_options={
     "max_retries": 1
 })
 ```
@@ -125,7 +121,7 @@ client = OpenLedgerClient(
 
 
 # Override timeout for a specific method
-client.categories.create_a_new_category(..., request_options={
+client.banks.sync_plaid_accounts_for_an_entity(..., request_options={
     "timeout_in_seconds": 1
 })
 ```

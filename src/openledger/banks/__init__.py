@@ -4,12 +4,18 @@
 
 from .types import (
     GetV1BanksCreateLinkResponse,
-    PutV1BanksAccountsResponse,
-    PutV1BanksAccountsResponseCreatedAccountsItem,
+    GetV1BanksSyncStatusResponse,
+    GetV1BanksSyncStatusResponseAccountsItem,
+    GetV1BanksSyncStatusResponseAccountsItemSyncStatus,
+    GetV1BanksSyncStatusResponseSummary,
+    PostV1BanksSyncResponse,
 )
 
 __all__ = [
     "GetV1BanksCreateLinkResponse",
-    "PutV1BanksAccountsResponse",
-    "PutV1BanksAccountsResponseCreatedAccountsItem",
+    "GetV1BanksSyncStatusResponse",
+    "GetV1BanksSyncStatusResponseAccountsItem",
+    "GetV1BanksSyncStatusResponseAccountsItemSyncStatus",
+    "GetV1BanksSyncStatusResponseSummary",
+    "PostV1BanksSyncResponse",
 ]

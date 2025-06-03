@@ -31,7 +31,7 @@ class EntitiesClient:
         """
         return self._raw_client
 
-    def generate_authentication_token(
+    def generate_entity_authentication_token(
         self,
         *,
         entity_id: str,
@@ -68,13 +68,13 @@ class EntitiesClient:
         client = OpenLedgerClient(
             token="YOUR_TOKEN",
         )
-        client.entities.generate_authentication_token(
+        client.entities.generate_entity_authentication_token(
             entity_id="entityId",
             api_key="apiKey",
             developer_id="developerId",
         )
         """
-        _response = self._raw_client.generate_authentication_token(
+        _response = self._raw_client.generate_entity_authentication_token(
             entity_id=entity_id, api_key=api_key, developer_id=developer_id, request_options=request_options
         )
         return _response.data
@@ -322,7 +322,7 @@ class AsyncEntitiesClient:
         """
         return self._raw_client
 
-    async def generate_authentication_token(
+    async def generate_entity_authentication_token(
         self,
         *,
         entity_id: str,
@@ -364,7 +364,7 @@ class AsyncEntitiesClient:
 
 
         async def main() -> None:
-            await client.entities.generate_authentication_token(
+            await client.entities.generate_entity_authentication_token(
                 entity_id="entityId",
                 api_key="apiKey",
                 developer_id="developerId",
@@ -373,7 +373,7 @@ class AsyncEntitiesClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.generate_authentication_token(
+        _response = await self._raw_client.generate_entity_authentication_token(
             entity_id=entity_id, api_key=api_key, developer_id=developer_id, request_options=request_options
         )
         return _response.data
