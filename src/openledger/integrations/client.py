@@ -4,10 +4,10 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..types.integration_status_response import IntegrationStatusResponse
 from .raw_client import AsyncRawIntegrationsClient, RawIntegrationsClient
-from .types.get_v1integrations_status_response import GetV1IntegrationsStatusResponse
-from .types.post_v1integrations_connect_response import PostV1IntegrationsConnectResponse
-from .types.post_v1integrations_disconnect_response import PostV1IntegrationsDisconnectResponse
+from .types.post_integrations_connect_response import PostIntegrationsConnectResponse
+from .types.post_integrations_disconnect_response import PostIntegrationsDisconnectResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -30,120 +30,101 @@ class IntegrationsClient:
 
     def get_integration_status(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetV1IntegrationsStatusResponse:
+    ) -> IntegrationStatusResponse:
         """
-        Retrieves the status of all integrations for an entity
+        Get status of all integrations for an entity
 
         Parameters
         ----------
         entity_id : str
-            The ID of the entity to get integration status for
+            entity ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetV1IntegrationsStatusResponse
-            Integration status retrieved successfully
+        IntegrationStatusResponse
+            Integration status
 
         Examples
         --------
         from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.integrations.get_integration_status(
-            entity_id="entityId",
-        )
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.integrations.get_integration_status(entity_id='entityId', )
         """
         _response = self._raw_client.get_integration_status(entity_id=entity_id, request_options=request_options)
         return _response.data
 
-    def connect_an_integration(
+    def connect_integration(
         self,
         *,
-        provider: str,
         entity_id: str,
-        connection_type: typing.Optional[str] = OMIT,
+        provider: str,
+        authorization: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1IntegrationsConnectResponse:
+    ) -> PostIntegrationsConnectResponse:
         """
-        Initiates the connection process for a third-party integration using the Unified API
+        Connect a third-party integration
 
         Parameters
         ----------
-        provider : str
-            The integration provider (e.g., quickbooks, xero)
-
         entity_id : str
-            The ID of the entity to connect the integration for
+            entity ID
 
-        connection_type : typing.Optional[str]
-            The type of connection to establish (used as scope in Unified API)
+        provider : str
+
+        authorization : typing.Dict[str, typing.Optional[typing.Any]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1IntegrationsConnectResponse
-            Integration connection initiated successfully
+        PostIntegrationsConnectResponse
+            Integration connected
 
         Examples
         --------
         from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.integrations.connect_an_integration(
-            provider="quickbooks",
-            entity_id="entityId",
-        )
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.integrations.connect_integration(entity_id='entityId', provider='provider', authorization={'key': 'value'
+        }, )
         """
-        _response = self._raw_client.connect_an_integration(
-            provider=provider, entity_id=entity_id, connection_type=connection_type, request_options=request_options
+        _response = self._raw_client.connect_integration(
+            entity_id=entity_id, provider=provider, authorization=authorization, request_options=request_options
         )
         return _response.data
 
-    def disconnect_an_integration(
-        self, *, entity_id: str, integration_type: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1IntegrationsDisconnectResponse:
+    def disconnect_integration(
+        self, *, entity_id: str, integration_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> PostIntegrationsDisconnectResponse:
         """
-        Disconnects an existing integration for an entity by removing it from the Unified Connections table
+        Disconnect a third-party integration
 
         Parameters
         ----------
         entity_id : str
-            The ID of the entity that owns the integration
+            entity ID
 
-        integration_type : str
-            The type of integration to disconnect (must match connectionType in Unified Connections)
+        integration_id : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1IntegrationsDisconnectResponse
-            Integration disconnected successfully
+        PostIntegrationsDisconnectResponse
+            Integration disconnected
 
         Examples
         --------
         from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.integrations.disconnect_an_integration(
-            entity_id="entityId",
-            integration_type="integrationType",
-        )
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.integrations.disconnect_integration(entity_id='entityId', integration_id='integrationId', )
         """
-        _response = self._raw_client.disconnect_an_integration(
-            entity_id=entity_id, integration_type=integration_type, request_options=request_options
+        _response = self._raw_client.disconnect_integration(
+            entity_id=entity_id, integration_id=integration_id, request_options=request_options
         )
         return _response.data
 
@@ -165,143 +146,109 @@ class AsyncIntegrationsClient:
 
     async def get_integration_status(
         self, *, entity_id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> GetV1IntegrationsStatusResponse:
+    ) -> IntegrationStatusResponse:
         """
-        Retrieves the status of all integrations for an entity
+        Get status of all integrations for an entity
 
         Parameters
         ----------
         entity_id : str
-            The ID of the entity to get integration status for
+            entity ID
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        GetV1IntegrationsStatusResponse
-            Integration status retrieved successfully
+        IntegrationStatusResponse
+            Integration status
 
         Examples
         --------
-        import asyncio
-
         from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.integrations.get_integration_status(
-                entity_id="entityId",
-            )
-
-
+            await client.integrations.get_integration_status(entity_id='entityId', )
         asyncio.run(main())
         """
         _response = await self._raw_client.get_integration_status(entity_id=entity_id, request_options=request_options)
         return _response.data
 
-    async def connect_an_integration(
+    async def connect_integration(
         self,
         *,
-        provider: str,
         entity_id: str,
-        connection_type: typing.Optional[str] = OMIT,
+        provider: str,
+        authorization: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1IntegrationsConnectResponse:
+    ) -> PostIntegrationsConnectResponse:
         """
-        Initiates the connection process for a third-party integration using the Unified API
+        Connect a third-party integration
 
         Parameters
         ----------
-        provider : str
-            The integration provider (e.g., quickbooks, xero)
-
         entity_id : str
-            The ID of the entity to connect the integration for
+            entity ID
 
-        connection_type : typing.Optional[str]
-            The type of connection to establish (used as scope in Unified API)
+        provider : str
+
+        authorization : typing.Dict[str, typing.Optional[typing.Any]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1IntegrationsConnectResponse
-            Integration connection initiated successfully
+        PostIntegrationsConnectResponse
+            Integration connected
 
         Examples
         --------
-        import asyncio
-
         from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.integrations.connect_an_integration(
-                provider="quickbooks",
-                entity_id="entityId",
-            )
-
-
+            await client.integrations.connect_integration(entity_id='entityId', provider='provider', authorization={'key': 'value'
+            }, )
         asyncio.run(main())
         """
-        _response = await self._raw_client.connect_an_integration(
-            provider=provider, entity_id=entity_id, connection_type=connection_type, request_options=request_options
+        _response = await self._raw_client.connect_integration(
+            entity_id=entity_id, provider=provider, authorization=authorization, request_options=request_options
         )
         return _response.data
 
-    async def disconnect_an_integration(
-        self, *, entity_id: str, integration_type: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1IntegrationsDisconnectResponse:
+    async def disconnect_integration(
+        self, *, entity_id: str, integration_id: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> PostIntegrationsDisconnectResponse:
         """
-        Disconnects an existing integration for an entity by removing it from the Unified Connections table
+        Disconnect a third-party integration
 
         Parameters
         ----------
         entity_id : str
-            The ID of the entity that owns the integration
+            entity ID
 
-        integration_type : str
-            The type of integration to disconnect (must match connectionType in Unified Connections)
+        integration_id : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1IntegrationsDisconnectResponse
-            Integration disconnected successfully
+        PostIntegrationsDisconnectResponse
+            Integration disconnected
 
         Examples
         --------
-        import asyncio
-
         from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.integrations.disconnect_an_integration(
-                entity_id="entityId",
-                integration_type="integrationType",
-            )
-
-
+            await client.integrations.disconnect_integration(entity_id='entityId', integration_id='integrationId', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.disconnect_an_integration(
-            entity_id=entity_id, integration_type=integration_type, request_options=request_options
+        _response = await self._raw_client.disconnect_integration(
+            entity_id=entity_id, integration_id=integration_id, request_options=request_options
         )
         return _response.data

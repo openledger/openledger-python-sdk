@@ -3,25 +3,23 @@
 # isort: skip_file
 
 from .types import (
-    DeleteV1EntitiesResponse,
-    GetV1EntitiesResponse,
-    GetV1EntitiesResponseEntity,
-    GetV1EntitiesResponseEntityAddress,
-    GetV1EntitiesResponseEntityPlaidAccountsItem,
-    PostV1EntitiesAuthGenerateTokenResponse,
-    PostV1EntitiesResponse,
-    PostV1EntitiesResponseEntity,
-    PutV1EntitiesResponse,
+    DeleteEntitiesResponse,
+    EntityCreateRequestEntityType,
+    EntityCreateRequestStatus,
+    EntityUpdateRequestEntityType,
+    EntityUpdateRequestStatus,
+    GetEntitiesResponse,
+    PostEntitiesResponse,
+    PutEntitiesResponse,
 )
 
 __all__ = [
-    "DeleteV1EntitiesResponse",
-    "GetV1EntitiesResponse",
-    "GetV1EntitiesResponseEntity",
-    "GetV1EntitiesResponseEntityAddress",
-    "GetV1EntitiesResponseEntityPlaidAccountsItem",
-    "PostV1EntitiesAuthGenerateTokenResponse",
-    "PostV1EntitiesResponse",
-    "PostV1EntitiesResponseEntity",
-    "PutV1EntitiesResponse",
+    "DeleteEntitiesResponse",
+    "EntityCreateRequestEntityType",
+    "EntityCreateRequestStatus",
+    "EntityUpdateRequestEntityType",
+    "EntityUpdateRequestStatus",
+    "GetEntitiesResponse",
+    "PostEntitiesResponse",
+    "PutEntitiesResponse",
 ]

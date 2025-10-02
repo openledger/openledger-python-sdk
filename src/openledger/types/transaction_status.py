@@ -2,4 +2,4 @@
 
 import typing
 
-TransactionStatus = typing.Union[typing.Literal["PENDING", "CLEARED", "VOID"], typing.Any]
+TransactionStatus = typing.Union[typing.Literal["PENDING", "CLEARED"], typing.Any]

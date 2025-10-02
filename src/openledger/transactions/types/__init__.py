@@ -2,86 +2,26 @@
 
 # isort: skip_file
 
-from .delete_v1transactions_response import DeleteV1TransactionsResponse
-from .get_v1transactions_by_month_response_item import GetV1TransactionsByMonthResponseItem
-from .get_v1transactions_by_month_response_item_plaid_account_breakdown_item import (
-    GetV1TransactionsByMonthResponseItemPlaidAccountBreakdownItem,
-)
-from .get_v1transactions_chat_response import GetV1TransactionsChatResponse
-from .get_v1transactions_counterparties_response import GetV1TransactionsCounterpartiesResponse
-from .get_v1transactions_counterparties_response_counterparties_item import (
-    GetV1TransactionsCounterpartiesResponseCounterpartiesItem,
-)
-from .get_v1transactions_counterparties_response_counterparties_item_transactions_item import (
-    GetV1TransactionsCounterpartiesResponseCounterpartiesItemTransactionsItem,
-)
-from .get_v1transactions_response import GetV1TransactionsResponse
-from .get_v1transactions_response_transactions_item import GetV1TransactionsResponseTransactionsItem
-from .get_v1transactions_response_transactions_item_credit_account import (
-    GetV1TransactionsResponseTransactionsItemCreditAccount,
-)
-from .get_v1transactions_response_transactions_item_debit_account import (
-    GetV1TransactionsResponseTransactionsItemDebitAccount,
-)
-from .get_v1transactions_response_transactions_item_plaid_account import (
-    GetV1TransactionsResponseTransactionsItemPlaidAccount,
-)
-from .get_v1transactions_response_transactions_item_status import GetV1TransactionsResponseTransactionsItemStatus
-from .post_v1transactions_categorize_response import PostV1TransactionsCategorizeResponse
-from .post_v1transactions_categorize_response_transaction import PostV1TransactionsCategorizeResponseTransaction
-from .post_v1transactions_categorize_response_transaction_metadata import (
-    PostV1TransactionsCategorizeResponseTransactionMetadata,
-)
-from .post_v1transactions_edit_response import PostV1TransactionsEditResponse
-from .post_v1transactions_request_status import PostV1TransactionsRequestStatus
-from .post_v1transactions_response import PostV1TransactionsResponse
-from .post_v1transactions_response_transaction import PostV1TransactionsResponseTransaction
-from .post_v1transactions_response_transaction_status import PostV1TransactionsResponseTransactionStatus
-from .post_v1transactions_search_request_filters import PostV1TransactionsSearchRequestFilters
-from .post_v1transactions_search_response import PostV1TransactionsSearchResponse
-from .post_v1transactions_search_response_pagination import PostV1TransactionsSearchResponsePagination
-from .post_v1transactions_search_response_transactions_item import PostV1TransactionsSearchResponseTransactionsItem
-from .put_v1transactions_approve_request_body import PutV1TransactionsApproveRequestBody
-from .put_v1transactions_approve_request_body_id import PutV1TransactionsApproveRequestBodyId
-from .put_v1transactions_approve_request_body_item import PutV1TransactionsApproveRequestBodyItem
-from .put_v1transactions_approve_request_body_transaction_ids import PutV1TransactionsApproveRequestBodyTransactionIds
-from .put_v1transactions_approve_response import PutV1TransactionsApproveResponse
-from .put_v1transactions_approve_response_results_item import PutV1TransactionsApproveResponseResultsItem
-from .put_v1transactions_approve_response_results_item_transaction import (
-    PutV1TransactionsApproveResponseResultsItemTransaction,
-)
+from .delete_transactions_response import DeleteTransactionsResponse
+from .get_transactions_chat_response import GetTransactionsChatResponse
+from .post_transactions_categorize_response import PostTransactionsCategorizeResponse
+from .post_transactions_response import PostTransactionsResponse
+from .post_transactions_search_response import PostTransactionsSearchResponse
+from .post_transactions_search_response_pagination import PostTransactionsSearchResponsePagination
+from .put_transactions_response import PutTransactionsResponse
+from .transaction_request_status import TransactionRequestStatus
+from .transaction_search_request_filters import TransactionSearchRequestFilters
+from .transaction_search_request_filters_status import TransactionSearchRequestFiltersStatus
 
 __all__ = [
-    "DeleteV1TransactionsResponse",
-    "GetV1TransactionsByMonthResponseItem",
-    "GetV1TransactionsByMonthResponseItemPlaidAccountBreakdownItem",
-    "GetV1TransactionsChatResponse",
-    "GetV1TransactionsCounterpartiesResponse",
-    "GetV1TransactionsCounterpartiesResponseCounterpartiesItem",
-    "GetV1TransactionsCounterpartiesResponseCounterpartiesItemTransactionsItem",
-    "GetV1TransactionsResponse",
-    "GetV1TransactionsResponseTransactionsItem",
-    "GetV1TransactionsResponseTransactionsItemCreditAccount",
-    "GetV1TransactionsResponseTransactionsItemDebitAccount",
-    "GetV1TransactionsResponseTransactionsItemPlaidAccount",
-    "GetV1TransactionsResponseTransactionsItemStatus",
-    "PostV1TransactionsCategorizeResponse",
-    "PostV1TransactionsCategorizeResponseTransaction",
-    "PostV1TransactionsCategorizeResponseTransactionMetadata",
-    "PostV1TransactionsEditResponse",
-    "PostV1TransactionsRequestStatus",
-    "PostV1TransactionsResponse",
-    "PostV1TransactionsResponseTransaction",
-    "PostV1TransactionsResponseTransactionStatus",
-    "PostV1TransactionsSearchRequestFilters",
-    "PostV1TransactionsSearchResponse",
-    "PostV1TransactionsSearchResponsePagination",
-    "PostV1TransactionsSearchResponseTransactionsItem",
-    "PutV1TransactionsApproveRequestBody",
-    "PutV1TransactionsApproveRequestBodyId",
-    "PutV1TransactionsApproveRequestBodyItem",
-    "PutV1TransactionsApproveRequestBodyTransactionIds",
-    "PutV1TransactionsApproveResponse",
-    "PutV1TransactionsApproveResponseResultsItem",
-    "PutV1TransactionsApproveResponseResultsItemTransaction",
+    "DeleteTransactionsResponse",
+    "GetTransactionsChatResponse",
+    "PostTransactionsCategorizeResponse",
+    "PostTransactionsResponse",
+    "PostTransactionsSearchResponse",
+    "PostTransactionsSearchResponsePagination",
+    "PutTransactionsResponse",
+    "TransactionRequestStatus",
+    "TransactionSearchRequestFilters",
+    "TransactionSearchRequestFiltersStatus",
 ]

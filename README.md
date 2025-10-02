@@ -3,7 +3,7 @@
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Fopenledger%2Fopenledger-python-sdk)
 [![pypi](https://img.shields.io/pypi/v/OpenLedger)](https://pypi.python.org/pypi/OpenLedger)
 
-The Openledger Python library provides convenient access to the Openledger API from Python.
+The Openledger Python library provides convenient access to the Openledger APIs from Python.
 
 ## Installation
 
@@ -21,13 +21,8 @@ Instantiate and use the client with the following:
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-client.banks.sync_plaid_accounts_for_an_entity(
-    entity_id="entityId",
-)
+client = OpenLedgerClient(token="YOUR_TOKEN", )
+client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
 ```
 
 ## Async Client
@@ -35,23 +30,12 @@ client.banks.sync_plaid_accounts_for_an_entity(
 The SDK also exports an `async` client so that you can make non-blocking calls to our API.
 
 ```python
-import asyncio
-
 from openledger import AsyncOpenLedgerClient
-
-client = AsyncOpenLedgerClient(
-    token="YOUR_TOKEN",
-)
-
-
+import asyncio
+client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
 async def main() -> None:
-    await client.banks.sync_plaid_accounts_for_an_entity(
-        entity_id="entityId",
-    )
-
-
-asyncio.run(main())
-```
+    await client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
+asyncio.run(main())```
 
 ## Exception Handling
 
@@ -60,9 +44,8 @@ will be thrown.
 
 ```python
 from openledger.core.api_error import ApiError
-
 try:
-    client.banks.sync_plaid_accounts_for_an_entity(...)
+    client.authentication.generate_token(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -77,11 +60,8 @@ The `.with_raw_response` property returns a "raw" client that can be used to acc
 
 ```python
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    ...,
-)
-response = client.banks.with_raw_response.sync_plaid_accounts_for_an_entity(...)
+client = OpenLedgerClient(..., )
+response = client.authentication.with_raw_response.generate_token(...)
 print(response.headers)  # access the response headers
 print(response.data)  # access the underlying object
 ```
@@ -101,7 +81,7 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.banks.sync_plaid_accounts_for_an_entity(..., request_options={
+client.authentication.generate_token(..., request_options={
     "max_retries": 1
 })
 ```
@@ -113,15 +93,10 @@ The SDK defaults to a 60 second timeout. You can configure this with a timeout o
 ```python
 
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    ...,
-    timeout=20.0,
-)
-
+client = OpenLedgerClient(..., timeout=20.0, )
 
 # Override timeout for a specific method
-client.banks.sync_plaid_accounts_for_an_entity(..., request_options={
+client.authentication.generate_token(..., request_options={
     "timeout_in_seconds": 1
 })
 ```
@@ -132,17 +107,9 @@ You can override the `httpx` client to customize it for your use-case. Some comm
 and transports.
 
 ```python
-import httpx
 from openledger import OpenLedgerClient
-
-client = OpenLedgerClient(
-    ...,
-    httpx_client=httpx.Client(
-        proxies="http://my.test.proxy.example.com",
-        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
-    ),
-)
-```
+import httpx
+client = OpenLedgerClient(..., httpx_client=httpx.Client(proxies="http://my.test.proxy.example.com", transport=httpx.HTTPTransport(local_address="0.0.0.0"), ))```
 
 ## Contributing
 

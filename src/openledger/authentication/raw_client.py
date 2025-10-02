@@ -10,10 +10,7 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
 from ..errors.internal_server_error import InternalServerError
-from .types.post_v1auth_developer_token_response import PostV1AuthDeveloperTokenResponse
-from .types.post_v1auth_entity_token_response import PostV1AuthEntityTokenResponse
-from .types.post_v1auth_tokens_request_user_type import PostV1AuthTokensRequestUserType
-from .types.post_v1auth_tokens_response import PostV1AuthTokensResponse
+from ..types.token_response import TokenResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -23,48 +20,34 @@ class RawAuthenticationClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def generate_access_token(
-        self,
-        *,
-        user_type: PostV1AuthTokensRequestUserType,
-        id: str,
-        api_key: str,
-        developer_id: typing.Optional[str] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostV1AuthTokensResponse]:
+    def generate_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[TokenResponse]:
         """
-        Generates a JWT access token for any user type with a unified request format
+        Generate a JWT token for API authentication
 
         Parameters
         ----------
-        user_type : PostV1AuthTokensRequestUserType
-            The type of user requesting authentication
+        client_id : str
+            Client ID
 
-        id : str
-            The ID of the user (developerId for developers, entityId for entities, userId for admins)
-
-        api_key : str
-            The API key for authentication
-
-        developer_id : typing.Optional[str]
-            Required for entity userType - the developer ID that owns the entity
+        client_secret : str
+            Client secret
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[PostV1AuthTokensResponse]
+        HttpResponse[TokenResponse]
             Token generated successfully
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/auth/tokens",
+            "generate-token",
             method="POST",
             json={
-                "userType": user_type,
-                "id": id,
-                "apiKey": api_key,
-                "developerId": developer_id,
+                "client_id": client_id,
+                "client_secret": client_secret,
             },
             headers={
                 "content-type": "application/json",
@@ -75,240 +58,71 @@ class RawAuthenticationClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1AuthTokensResponse,
+                    TokenResponse,
                     parse_obj_as(
-                        type_=PostV1AuthTokensResponse,  # type: ignore
+                        type_=TokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
+                    typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
                             type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
-                    ),
+                    )
                 )
             if _response.status_code == 500:
                 raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
+                    typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
                             type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
-                    ),
+                    )
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def generate_developer_authentication_token(
-        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[PostV1AuthDeveloperTokenResponse]:
-        """
-        Generates a JWT token for developer authentication
-
-        Parameters
-        ----------
-        developer_id : str
-            The ID of the developer
-
-        api_key : str
-            The API key for the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[PostV1AuthDeveloperTokenResponse]
-            Token generated successfully
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/auth/developer-token",
-            method="POST",
-            json={
-                "developerId": developer_id,
-                "apiKey": api_key,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostV1AuthDeveloperTokenResponse,
-                    parse_obj_as(
-                        type_=PostV1AuthDeveloperTokenResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def generate_entity_authentication_token(
-        self,
-        *,
-        entity_id: str,
-        api_key: str,
-        developer_id: str,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[PostV1AuthEntityTokenResponse]:
-        """
-        Generates a JWT token for entity authentication
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity
-
-        api_key : str
-            The API key for the entity
-
-        developer_id : str
-            The ID of the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[PostV1AuthEntityTokenResponse]
-            Token generated successfully
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/auth/entity-token",
-            method="POST",
-            json={
-                "entityId": entity_id,
-                "apiKey": api_key,
-                "developerId": developer_id,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostV1AuthEntityTokenResponse,
-                    parse_obj_as(
-                        type_=PostV1AuthEntityTokenResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)
 
 
 class AsyncRawAuthenticationClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def generate_access_token(
-        self,
-        *,
-        user_type: PostV1AuthTokensRequestUserType,
-        id: str,
-        api_key: str,
-        developer_id: typing.Optional[str] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostV1AuthTokensResponse]:
+    async def generate_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[TokenResponse]:
         """
-        Generates a JWT access token for any user type with a unified request format
+        Generate a JWT token for API authentication
 
         Parameters
         ----------
-        user_type : PostV1AuthTokensRequestUserType
-            The type of user requesting authentication
+        client_id : str
+            Client ID
 
-        id : str
-            The ID of the user (developerId for developers, entityId for entities, userId for admins)
-
-        api_key : str
-            The API key for authentication
-
-        developer_id : typing.Optional[str]
-            Required for entity userType - the developer ID that owns the entity
+        client_secret : str
+            Client secret
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[PostV1AuthTokensResponse]
+        AsyncHttpResponse[TokenResponse]
             Token generated successfully
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/auth/tokens",
+            "generate-token",
             method="POST",
             json={
-                "userType": user_type,
-                "id": id,
-                "apiKey": api_key,
-                "developerId": developer_id,
+                "client_id": client_id,
+                "client_secret": client_secret,
             },
             headers={
                 "content-type": "application/json",
@@ -319,189 +133,34 @@ class AsyncRawAuthenticationClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    PostV1AuthTokensResponse,
+                    TokenResponse,
                     parse_obj_as(
-                        type_=PostV1AuthTokensResponse,  # type: ignore
+                        type_=TokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
+                    typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
                             type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
-                    ),
+                    )
                 )
             if _response.status_code == 500:
                 raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
+                    typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
                             type_=typing.Optional[typing.Any],  # type: ignore
                             object_=_response.json(),
                         ),
-                    ),
+                    )
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def generate_developer_authentication_token(
-        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[PostV1AuthDeveloperTokenResponse]:
-        """
-        Generates a JWT token for developer authentication
-
-        Parameters
-        ----------
-        developer_id : str
-            The ID of the developer
-
-        api_key : str
-            The API key for the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[PostV1AuthDeveloperTokenResponse]
-            Token generated successfully
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/auth/developer-token",
-            method="POST",
-            json={
-                "developerId": developer_id,
-                "apiKey": api_key,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostV1AuthDeveloperTokenResponse,
-                    parse_obj_as(
-                        type_=PostV1AuthDeveloperTokenResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def generate_entity_authentication_token(
-        self,
-        *,
-        entity_id: str,
-        api_key: str,
-        developer_id: str,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[PostV1AuthEntityTokenResponse]:
-        """
-        Generates a JWT token for entity authentication
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity
-
-        api_key : str
-            The API key for the entity
-
-        developer_id : str
-            The ID of the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[PostV1AuthEntityTokenResponse]
-            Token generated successfully
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/auth/entity-token",
-            method="POST",
-            json={
-                "entityId": entity_id,
-                "apiKey": api_key,
-                "developerId": developer_id,
-            },
-            headers={
-                "content-type": "application/json",
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    PostV1AuthEntityTokenResponse,
-                    parse_obj_as(
-                        type_=PostV1AuthEntityTokenResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            if _response.status_code == 400:
-                raise BadRequestError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            if _response.status_code == 500:
-                raise InternalServerError(
-                    headers=dict(_response.headers),
-                    body=typing.cast(
-                        typing.Optional[typing.Any],
-                        parse_obj_as(
-                            type_=typing.Optional[typing.Any],  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    ),
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+            raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response.text)
+        raise ApiError(headers=dict(_response.headers), status_code=_response.status_code, body=_response_json)

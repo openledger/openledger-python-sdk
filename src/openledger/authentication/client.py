@@ -4,11 +4,8 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..types.token_response import TokenResponse
 from .raw_client import AsyncRawAuthenticationClient, RawAuthenticationClient
-from .types.post_v1auth_developer_token_response import PostV1AuthDeveloperTokenResponse
-from .types.post_v1auth_entity_token_response import PostV1AuthEntityTokenResponse
-from .types.post_v1auth_tokens_request_user_type import PostV1AuthTokensRequestUserType
-from .types.post_v1auth_tokens_response import PostV1AuthTokensResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -29,142 +26,36 @@ class AuthenticationClient:
         """
         return self._raw_client
 
-    def generate_access_token(
-        self,
-        *,
-        user_type: PostV1AuthTokensRequestUserType,
-        id: str,
-        api_key: str,
-        developer_id: typing.Optional[str] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1AuthTokensResponse:
+    def generate_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> TokenResponse:
         """
-        Generates a JWT access token for any user type with a unified request format
+        Generate a JWT token for API authentication
 
         Parameters
         ----------
-        user_type : PostV1AuthTokensRequestUserType
-            The type of user requesting authentication
+        client_id : str
+            Client ID
 
-        id : str
-            The ID of the user (developerId for developers, entityId for entities, userId for admins)
-
-        api_key : str
-            The API key for authentication
-
-        developer_id : typing.Optional[str]
-            Required for entity userType - the developer ID that owns the entity
+        client_secret : str
+            Client secret
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1AuthTokensResponse
+        TokenResponse
             Token generated successfully
 
         Examples
         --------
         from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.authentication.generate_access_token(
-            user_type="developer",
-            id="id",
-            api_key="apiKey",
-        )
+        client = OpenLedgerClient(token="YOUR_TOKEN", )
+        client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
         """
-        _response = self._raw_client.generate_access_token(
-            user_type=user_type, id=id, api_key=api_key, developer_id=developer_id, request_options=request_options
-        )
-        return _response.data
-
-    def generate_developer_authentication_token(
-        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1AuthDeveloperTokenResponse:
-        """
-        Generates a JWT token for developer authentication
-
-        Parameters
-        ----------
-        developer_id : str
-            The ID of the developer
-
-        api_key : str
-            The API key for the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        PostV1AuthDeveloperTokenResponse
-            Token generated successfully
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.authentication.generate_developer_authentication_token(
-            developer_id="developerId",
-            api_key="apiKey",
-        )
-        """
-        _response = self._raw_client.generate_developer_authentication_token(
-            developer_id=developer_id, api_key=api_key, request_options=request_options
-        )
-        return _response.data
-
-    def generate_entity_authentication_token(
-        self,
-        *,
-        entity_id: str,
-        api_key: str,
-        developer_id: str,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1AuthEntityTokenResponse:
-        """
-        Generates a JWT token for entity authentication
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity
-
-        api_key : str
-            The API key for the entity
-
-        developer_id : str
-            The ID of the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        PostV1AuthEntityTokenResponse
-            Token generated successfully
-
-        Examples
-        --------
-        from openledger import OpenLedgerClient
-
-        client = OpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-        client.authentication.generate_entity_authentication_token(
-            entity_id="entityId",
-            api_key="apiKey",
-            developer_id="developerId",
-        )
-        """
-        _response = self._raw_client.generate_entity_authentication_token(
-            entity_id=entity_id, api_key=api_key, developer_id=developer_id, request_options=request_options
+        _response = self._raw_client.generate_token(
+            client_id=client_id, client_secret=client_secret, request_options=request_options
         )
         return _response.data
 
@@ -184,165 +75,38 @@ class AsyncAuthenticationClient:
         """
         return self._raw_client
 
-    async def generate_access_token(
-        self,
-        *,
-        user_type: PostV1AuthTokensRequestUserType,
-        id: str,
-        api_key: str,
-        developer_id: typing.Optional[str] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1AuthTokensResponse:
+    async def generate_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> TokenResponse:
         """
-        Generates a JWT access token for any user type with a unified request format
+        Generate a JWT token for API authentication
 
         Parameters
         ----------
-        user_type : PostV1AuthTokensRequestUserType
-            The type of user requesting authentication
+        client_id : str
+            Client ID
 
-        id : str
-            The ID of the user (developerId for developers, entityId for entities, userId for admins)
-
-        api_key : str
-            The API key for authentication
-
-        developer_id : typing.Optional[str]
-            Required for entity userType - the developer ID that owns the entity
+        client_secret : str
+            Client secret
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        PostV1AuthTokensResponse
+        TokenResponse
             Token generated successfully
 
         Examples
         --------
-        import asyncio
-
         from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
+        import asyncio
+        client = AsyncOpenLedgerClient(token="YOUR_TOKEN", )
         async def main() -> None:
-            await client.authentication.generate_access_token(
-                user_type="developer",
-                id="id",
-                api_key="apiKey",
-            )
-
-
+            await client.authentication.generate_token(client_id='client_id', client_secret='client_secret', )
         asyncio.run(main())
         """
-        _response = await self._raw_client.generate_access_token(
-            user_type=user_type, id=id, api_key=api_key, developer_id=developer_id, request_options=request_options
-        )
-        return _response.data
-
-    async def generate_developer_authentication_token(
-        self, *, developer_id: str, api_key: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> PostV1AuthDeveloperTokenResponse:
-        """
-        Generates a JWT token for developer authentication
-
-        Parameters
-        ----------
-        developer_id : str
-            The ID of the developer
-
-        api_key : str
-            The API key for the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        PostV1AuthDeveloperTokenResponse
-            Token generated successfully
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.authentication.generate_developer_authentication_token(
-                developer_id="developerId",
-                api_key="apiKey",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.generate_developer_authentication_token(
-            developer_id=developer_id, api_key=api_key, request_options=request_options
-        )
-        return _response.data
-
-    async def generate_entity_authentication_token(
-        self,
-        *,
-        entity_id: str,
-        api_key: str,
-        developer_id: str,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> PostV1AuthEntityTokenResponse:
-        """
-        Generates a JWT token for entity authentication
-
-        Parameters
-        ----------
-        entity_id : str
-            The ID of the entity
-
-        api_key : str
-            The API key for the entity
-
-        developer_id : str
-            The ID of the developer
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        PostV1AuthEntityTokenResponse
-            Token generated successfully
-
-        Examples
-        --------
-        import asyncio
-
-        from openledger import AsyncOpenLedgerClient
-
-        client = AsyncOpenLedgerClient(
-            token="YOUR_TOKEN",
-        )
-
-
-        async def main() -> None:
-            await client.authentication.generate_entity_authentication_token(
-                entity_id="entityId",
-                api_key="apiKey",
-                developer_id="developerId",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.generate_entity_authentication_token(
-            entity_id=entity_id, api_key=api_key, developer_id=developer_id, request_options=request_options
+        _response = await self._raw_client.generate_token(
+            client_id=client_id, client_secret=client_secret, request_options=request_options
         )
         return _response.data
